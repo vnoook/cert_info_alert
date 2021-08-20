@@ -7,13 +7,14 @@
 
 import os
 import openpyxl
+import subprocess
 
 # переменные
-etx_txt = '.txt'
-dir_cers = r'cer_s'
-dir_txts = r'txt_s'
-# for /r cer_s %%i in (*.cer) do certutil "%%i" > "txt_s\%%~ni.txt"
-cer_command = 'for /r cer_s %i in (*.cer) do certutil "%i" > "txt_s\%~ni.txt"'
+etx_txt = '.txt'  # расширение файлов с текстом
+dir_cers = r'cer_s'  # папка для сохранения сертификатов
+dir_txts = r'txt_s'  # папка для дампов сертификатов
+# команда для командной строки windows = for /r cer_s %i in (*.cer) do certutil "%i" > "txt_s\%~ni.txt"
+cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
 
 
 # функция очищающая папку dir_txts для создания новых дампов сертификатов
@@ -33,19 +34,26 @@ def clean_dir_txts():
         # # print(f'{data_of_scan.path = }')
         # # print(f'{dir(data_of_scan) = }')
         # print()
-    print('(1)...папка от txt файлов очищена')
+    print('(1)...папка от старых дампов сертификатов очищена')
     print()
 
 
+# функция создающая дампы файлов и складывающая их в dir_txts путь
 def do_txt_from_cer():
-    os.chdir(os.getcwd())
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
     os.system(cer_command)
-    print('(2)...файлы txt из сертификатов сделаны')
+    print('(2)...дампы сертификатов вновь созданы')
     print()
 
 
 def read_txt_files():
-    pass
+    os.chdir(os.path.join(os.getcwd(), dir_txts))
+    for data_of_scan in os.scandir():
+        if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
+            pass
+
+    print('(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова')
+    print()
 
 
 def do_xlsx():
