@@ -13,7 +13,7 @@ etx_txt = '.txt'
 dir_cers = r'cer_s'
 dir_txts = r'txt_s'
 # for /r cer_s %%i in (*.cer) do certutil "%%i" > "txt_s\%%~ni.txt"
-cer_command = 'for /r cer_s %%i in (*.cer) do certutil "%%i" > "txt_s\%%~ni.txt"'
+cer_command = 'for /r cer_s %i in (*.cer) do certutil "%i" > "txt_s\%~ni.txt"'
 
 
 # функция очищающая папку dir_txts для создания новых дампов сертификатов
@@ -38,11 +38,10 @@ def clean_dir_txts():
 
 
 def do_txt_from_cer():
-    # os.chdir(os.getcwd())
-    # os.system(cer_command)
-    # print('(2)...файлы txt из сертификатов сделаны')
-    # print()
-    pass
+    os.chdir(os.getcwd())
+    os.system(cer_command)
+    print('(2)...файлы txt из сертификатов сделаны')
+    print()
 
 
 def read_txt_files():
