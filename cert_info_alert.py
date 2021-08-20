@@ -17,6 +17,7 @@ dir_txts = r'txt_s'  # папка для дампов сертификатов
 cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
 
 
+
 # функция очищающая папку dir_txts для создания новых дампов сертификатов
 def clean_dir_txts():
     os.chdir(os.path.join(os.getcwd(), dir_txts))
@@ -37,15 +38,22 @@ def do_txt_from_cer():
 
 # функция чтения дампов сертификатов и формирования конечной таблицы для вывода её в xlsx
 def read_txt_files():
-    # NotBefore:
-    # NotAfter:
+    # Поля для поиска в файле
+    # дата начала 'NotBefore:'
+    # дата конца 'NotAfter:'
+    # организация выдавшая сертификат 'CN='
+    # отпечаток 'Хеш сертификата(sha1):'
+    # фамилия 'SN='
+    # имя отчество 'G='
+    # полный путь до сертификата  = os.path.abspath(data_of_scan)
+    # '' '' '' '' '' '' '' ''
     os.chdir(os.path.join(os.getcwd(), dir_txts))
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             txt_file = open(data_of_scan.name, 'r')
-            print(f'{txt_file = }')
-            txt_file.close()
+            list_of_lines = txt_file.readlines()
 
+            txt_file.close()
     print('(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова')
     print()
 
