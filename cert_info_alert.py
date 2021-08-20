@@ -30,19 +30,21 @@ def clean_dir_txts():
 # функция создающая дампы файлов и складывающая их в dir_txts путь
 def do_txt_from_cer():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    # os.system(cer_command)
-    # subprocess.call(cer_command, shell=True)
     subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True)
-
     print('(2)...дампы сертификатов вновь созданы')
     print()
 
 
+# функция чтения дампов сертификатов и формирования конечной таблицы для вывода её в xlsx
 def read_txt_files():
+    # NotBefore:
+    # NotAfter:
     os.chdir(os.path.join(os.getcwd(), dir_txts))
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
-            print(data_of_scan.name)
+            txt_file = open(data_of_scan.name, 'r')
+            print(f'{txt_file = }')
+            txt_file.close()
 
     print('(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова')
     print()
