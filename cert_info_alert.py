@@ -53,26 +53,30 @@ def processing_txt_files():
                             )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
-    # чтение каждого файла построчно в список list_of_data_from_cert
+    # чтение каждого файла построчно в список temp_list_data_from_certs и добавление в конец "путь к файлу"
+    temp_list_data_from_certs = []
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             txt_file = open(data_of_scan.name, 'r')
-            all_strings = txt_file.readlines()
-            all_strings.append(os.path.abspath(data_of_scan))
-            list_of_data_from_cert.append(all_strings)
+            all_strings_txt_file = txt_file.readlines()
+            all_strings_txt_file.append(os.path.abspath(data_of_scan))
+            temp_list_data_from_certs.append(all_strings_txt_file)
             txt_file.close()
 
-    print(*list_of_data_from_cert, sep='\n')
+    # print(*temp_list_data_from_certs, sep='\n')
 
-    for dump in list_of_data_from_cert:
+    # формировани list_of_data_from_cert
+    for dump in temp_list_data_from_certs:
+        print()
+        print(dump[-1])
         for dump_string in dump:
             dump_string = dump_string.strip()
 
             if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
-                print(f'{dump_string.split(":", maxsplit=1)[0]} ... {dump_string.split(":", maxsplit=1)[1]}')
+                print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
 
             if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
-                print(f'{dump_string.split("=", maxsplit=1)[0]} ... {dump_string.split("=", maxsplit=1)[1]}')
+                print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова\n')
 
@@ -81,7 +85,7 @@ def do_xlsx():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # print(list_of_data_from_cert)
+    print(list_of_data_from_cert)
 
     # print(datetime.datetime.date(datetime.datetime.now()))
 
