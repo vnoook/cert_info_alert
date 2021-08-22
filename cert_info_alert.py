@@ -26,8 +26,7 @@ def clean_dir_txts():
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             os.remove(data_of_scan)
-    print('(1)...папка от старых дампов сертификатов очищена')
-    print()
+    print('\n(1)...папка от старых дампов сертификатов очищена\n')
 
 
 # функция создающая дампы файлов и складывающая их в dir_txts путь
@@ -35,37 +34,47 @@ def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True)
-    print('(2)...дампы сертификатов вновь созданы')
-    print()
+    print('\n(2)...дампы сертификатов вновь созданы\n')
 
 
 # функция чтения дампов сертификатов и формирования конечной таблицы для вывода её в xlsx
 def processing_txt_files():
     # Поля для поиска в файле
-    dict_search_string = {1 : 'SN=',  # фамилия 'SN='
-                          2 : 'G=',  # имя отчество 'G='
-                          3 : 'CN=',  # организация выдавшая сертификат 'CN='
-                          4 : 'Хеш сертификата(sha1):',  # отпечаток 'Хеш сертификата(sha1):'
-                          5 : 'NotBefore:',  # дата начала 'NotBefore:'
-                          6 : 'NotAfter:',  # дата конца 'NotAfter:'
-                          7 : 'datetime.datetime.date(datetime.datetime.now())',  # текущая дата
-                          8 : 'os.path.abspath(data_of_scan)',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
-                          9 : 'empty',
-                          10 : 'empty',
-                          11 : 'empty'
-                          }
+    tuple_search_string = (
+                            'SN',  # фамилия 'SN='
+                            'G',   # имя отчество 'G='
+                            'CN',  # организация выдавшая сертификат 'CN='
+                            'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
+                            'NotBefore',  # дата начала 'NotBefore:'
+                            'NotAfter',   # дата конца 'NotAfter:'
+                            'datetime.datetime.date(datetime.datetime.now())',  # текущая дата
+                            'os.path.abspath(data_of_scan)',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
+                            'Серийный номер'  # отличие между
+                            )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
+    # чтение каждого файла построчно в список list_of_data_from_cert
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             txt_file = open(data_of_scan.name, 'r')
-            list_of_lines = txt_file.readlines()
-
-            list_of_data_from_cert
-
+            all_strings = txt_file.readlines()
+            all_strings.append(os.path.abspath(data_of_scan))
+            list_of_data_from_cert.append(all_strings)
             txt_file.close()
-    print('(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова')
-    print()
+
+    print(*list_of_data_from_cert, sep='\n')
+
+    for dump in list_of_data_from_cert:
+        for dump_string in dump:
+            dump_string = dump_string.strip()
+
+            if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
+                print(f'{dump_string.split(":", maxsplit=1)[0]} ... {dump_string.split(":", maxsplit=1)[1]}')
+
+            if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
+                print(f'{dump_string.split("=", maxsplit=1)[0]} ... {dump_string.split("=", maxsplit=1)[1]}')
+
+    print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова\n')
 
 
 def do_xlsx():
@@ -74,18 +83,17 @@ def do_xlsx():
 
     # print(list_of_data_from_cert)
 
-    print(datetime.datetime.date(datetime.datetime.now()))
+    # print(datetime.datetime.date(datetime.datetime.now()))
 
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
     # собираю строку по правилу выгрузки и добавляю её в файл
-    # file_xlsx_s.append([val1, val2, val3])
+    # file_xlsx_s.append([list_of_data_from_cert])
 
     file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
-    print('(4)...файл с датами собран')
-    print()
+    print('\n(4)...файл с датами собран\n')
 
 
 if __name__ == '__main__':
