@@ -59,24 +59,34 @@ def processing_txt_files():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             txt_file = open(data_of_scan.name, 'r')
             all_strings_txt_file = txt_file.readlines()
+            txt_file.close()
             all_strings_txt_file.append(os.path.abspath(data_of_scan))
             temp_list_data_from_certs.append(all_strings_txt_file)
-            txt_file.close()
 
     # print(*temp_list_data_from_certs, sep='\n')
 
-    # формировани list_of_data_from_cert
+    # формирование list_of_data_from_cert
     for dump in temp_list_data_from_certs:
         print()
         print(dump[-1])
+        list_string_data = []
         for dump_string in dump:
             dump_string = dump_string.strip()
 
             if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
                 print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
+                list_string_data.append(dump_string.split(":", maxsplit=1)[1].strip())
 
             if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
                 print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
+                list_string_data.append(dump_string.split("=", maxsplit=1)[1].strip())
+
+        list_string_data.append(dump[-1])
+
+        list_of_data_from_cert.append(list_string_data)
+        list_string_data = []
+
+    print(list_of_data_from_cert)
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова\n')
 
@@ -85,15 +95,14 @@ def do_xlsx():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    print(list_of_data_from_cert)
-
     # print(datetime.datetime.date(datetime.datetime.now()))
 
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
     # собираю строку по правилу выгрузки и добавляю её в файл
-    # file_xlsx_s.append([list_of_data_from_cert])
+    for xls_str in list_of_data_from_cert:
+        file_xlsx_s.append(xls_str)
 
     file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
