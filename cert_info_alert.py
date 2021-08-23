@@ -49,7 +49,7 @@ def processing_txt_files():
                             'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
                             'Серийный номер',  # отличие между органами выдавшими сертификат
                             'полный путь до сертификата',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
-                            'текущая дата'  #datetime.datetime.date(datetime.datetime.now())
+                            'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
                             )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
@@ -72,9 +72,12 @@ def processing_txt_files():
             list_of_need_strings.append(os.path.abspath(data_of_scan))
 
             # тут из списка list_of_need_strings нужно вычислить лишние
-            # И создать порядок для формирования конечного списка для выгрузки в эксель
+            # И создать порядок для формирования конечного списка для выгрузки в xlsx
             for string_from_need_list in list_of_need_strings:
-                pass
+                if string_from_need_list.split(':', maxsplit=1)[0]:
+                    # первая строка должна быть шапкой в xlsx
+
+                    pass
 
             # создал список списков
             list_of_strings_from_files.append(list_of_need_strings)
@@ -100,7 +103,7 @@ def do_xlsx():
         file_xlsx_s.append(xls_str)
         # pass
 
-    file_xlsx.save(name_file_xlsx.replace('cert','cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
+    file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
     # file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
     print('\n(4)...файл с данными сертификатов собран\n')
