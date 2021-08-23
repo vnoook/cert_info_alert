@@ -17,6 +17,7 @@ dir_txts = r'txt_s'  # папка для дампов сертификатов
 # команда для командной строки windows = for /r cer_s %i in (*.cer) do certutil "%i" > "txt_s\%~ni.txt"
 cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
 name_file_xlsx = 'cert.xlsx'
+list_of_strings_from_files = []
 
 
 # функция очищающая папку dir_txts для создания новых дампов сертификатов
@@ -53,24 +54,33 @@ def processing_txt_files():
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
 
-    list_of_strings_from_files = []
-
     # чтение и обработка каждого файла в список, и добавление в конец списка "путь к файлу"
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
 
+            # получил все строки из файла
             all_strings_from_file = []
             with open(data_of_scan.name, 'r') as txt_file:
                 all_strings_from_file = txt_file.read().splitlines()
 
+            # выбрал из всех строк те, которые имеют вхождение из tuple_search_string
+            list_of_need_strings = []
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
                 if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
-                    list_of_strings_from_files.append(string_from_file)
+                    list_of_need_strings.append(string_from_file)
+            list_of_need_strings.append(os.path.abspath(data_of_scan))
 
-            list_of_strings_from_files.append(os.path.abspath(data_of_scan))
+            # тут из списка list_of_need_strings нужно вычислить лишние
+            # И создать порядок для формирования конечного списка для выгрузки в эксель
+            for string_from_need_list in list_of_need_strings:
+                pass
 
-    print(*list_of_strings_from_files, sep='\n')
+            # создал список списков
+            list_of_strings_from_files.append(list_of_need_strings)
+
+    # print(*list_of_strings_from_files, sep='\n')
+    print(list_of_strings_from_files)
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова')
 
@@ -86,9 +96,9 @@ def do_xlsx():
     file_xlsx_s = file_xlsx.active
 
     # собираю строку по правилу выгрузки и добавляю её в файл !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # for xls_str in list_of_strings_from_files:
-    #     file_xlsx_s.append(xls_str)
-    #     pass
+    for xls_str in list_of_strings_from_files:
+        file_xlsx_s.append(xls_str)
+        # pass
 
     # file_xlsx.save(name_file_xlsx.replace('cert','cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
     file_xlsx.save(name_file_xlsx)
