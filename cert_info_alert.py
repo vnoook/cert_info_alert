@@ -58,28 +58,24 @@ def processing_txt_files():
     # чтение и обработка каждого файла в список, и добавление в конец списка "путь к файлу"
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
+
             all_strings_from_file = []
             with open(data_of_scan.name, 'r') as txt_file:
                 all_strings_from_file = txt_file.read().splitlines()
 
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
-
                 if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
                     list_of_strings_from_files.append(string_from_file)
 
             list_of_strings_from_files.append(os.path.abspath(data_of_scan))
-            # print(f'{all_strings_from_file = }')
 
-        # list_of_strings_from_files.append(all_strings_from_file)
-        print(list_of_strings_from_files)
-
-    # print(*list_of_strings_from_files, sep='\n')
-    # print()
+    print(*list_of_strings_from_files, sep='\n')
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова')
 
 
+# перенос списка данных в файл xlsx
 def do_xlsx():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -98,6 +94,7 @@ def do_xlsx():
     file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
     print('\n(4)...файл с данными сертификатов собран\n')
+    print(f'сделано')
 
 
 if __name__ == '__main__':
@@ -105,8 +102,6 @@ if __name__ == '__main__':
     do_txt_from_cer()
     processing_txt_files()
     do_xlsx()
-
-    print(f'сделано')
 
 # **********************************************************************************************
 
