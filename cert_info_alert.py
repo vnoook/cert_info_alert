@@ -2,7 +2,7 @@
 # INSTALL
 # pip install openpyxl
 # COMPILE
-# pyinstaller -F -w cert_info_alert.py.py
+# pyinstaller -F -w cert_info_alert.py
 # ...
 
 import os
@@ -17,7 +17,6 @@ dir_txts = r'txt_s'  # папка для дампов сертификатов
 # команда для командной строки windows = for /r cer_s %i in (*.cer) do certutil "%i" > "txt_s\%~ni.txt"
 cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
 name_file_xlsx = 'cert.xlsx'
-list_of_data_from_cert = []
 
 
 # функция очищающая папку dir_txts для создания новых дампов сертификатов
@@ -49,44 +48,41 @@ def processing_txt_files():
                             'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
                             'datetime.datetime.date(datetime.datetime.now())',  # текущая дата
                             'Серийный номер',  # отличие между органами выдавшими сертификат
-                            'os.path.abspath(data_of_scan)'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
+                            'полный путь до сертификата'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
                             )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
-    # чтение каждого файла построчно в список temp_list_data_from_certs и добавление в конец "путь к файлу"
-    temp_list_data_from_certs = []
+
+    list_of_strings_from_files = []
+
+    # чтение и обработка каждого файла в список, и добавление в конец списка "путь к файлу"
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
-            txt_file = open(data_of_scan.name, 'r')
-            all_strings_txt_file = txt_file.readlines()
-            txt_file.close()
-            all_strings_txt_file.append(os.path.abspath(data_of_scan))
-            temp_list_data_from_certs.append(all_strings_txt_file)
+            all_strings_from_file = []
+            with open(data_of_scan.name, 'r') as txt_file:
+                all_strings_from_file = txt_file.read().splitlines()
 
-    # print(*temp_list_data_from_certs, sep='\n')
+            for string_from_file in all_strings_from_file:
+                string_from_file = string_from_file.strip()
 
-    # формирование list_of_data_from_cert
-    for dump in temp_list_data_from_certs:
-        # print()
-        # print(dump[-1])
-        list_string_data = []
-        for dump_string in dump:
-            dump_string = dump_string.strip()
+                if string_from_file.split(':', maxsplit=1)[0] in tuple_search_string:
+                    # print(f'::::{string_from_file.split(":", maxsplit=1)[0]}::::{string_from_file.split(":", maxsplit=1)[1].strip()}')
+                    list_of_strings_from_files.append(string_from_file.split(":", maxsplit=1)[1].strip())
 
-            if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
-                # print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
-                list_string_data.append(dump_string.split(":", maxsplit=1)[1].strip())
+                # print(string_from_file)
+                if string_from_file.split('=', maxsplit=1)[0] in tuple_search_string:
+                    # print(f'===={string_from_file.split("=", maxsplit=1)[0]}===={string_from_file.split("=", maxsplit=1)[1].strip()}')
+                    list_of_strings_from_files.append(string_from_file.split("=", maxsplit=1)[1].strip())
 
-            if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
-                # print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
-                list_string_data.append(dump_string.split("=", maxsplit=1)[1].strip())
 
-        list_string_data.append(dump[-1])
+            all_strings_from_file.append(os.path.abspath(data_of_scan))
+            # print(f'{all_strings_from_file = }')
 
-        list_of_data_from_cert.append(list_string_data)
-        list_string_data = []
+        list_of_strings_from_files.append(all_strings_from_file)
+        # print(list_of_strings_from_files)
 
-    # print(list_of_data_from_cert)
+    print(*list_of_strings_from_files, sep='\n')
+    print()
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова\n')
 
@@ -100,10 +96,12 @@ def do_xlsx():
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
-    # собираю строку по правилу выгрузки и добавляю её в файл
-    for xls_str in list_of_data_from_cert:
-        file_xlsx_s.append(xls_str)
+    # собираю строку по правилу выгрузки и добавляю её в файл !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # for xls_str in list_of_strings_from_files:
+    #     file_xlsx_s.append(xls_str)
+    #     pass
 
+    # file_xlsx.save(name_file_xlsx.replace('cert','cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
     file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
     print('\n(4)...файл с данными сертификатов собран\n')
@@ -116,6 +114,31 @@ if __name__ == '__main__':
     do_xlsx()
 
     print(f'сделано')
+
+# **********************************************************************************************
+
+    # # формирование1 list_of_strings_from_files
+    # for dump in list_of_strings_from_files:
+    #     # print()
+    #     # print(dump[-1])
+    #     list_of_strings_from_files = []
+    #     for dump_string in dump:
+    #         dump_string = dump_string.strip()
+    #
+    #         if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
+    #             # print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
+    #             list_of_strings_from_files.append(dump_string.split(":", maxsplit=1)[1].strip())
+    #
+    #         if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
+    #             # print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
+    #             list_of_strings_from_files.append(dump_string.split("=", maxsplit=1)[1].strip())
+    #
+    #     list_of_strings_from_files.append(dump[-1])
+    #
+    #     list_of_strings_from_files.append(list_of_strings_from_files)
+    #     list_of_strings_from_files = []
+
+# **********************************************************************************************
 
 # print(*list(os.scandir()), sep='\n')
 # print(f'{data_of_scan.is_file() = }')
