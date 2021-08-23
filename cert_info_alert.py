@@ -43,13 +43,13 @@ def processing_txt_files():
     tuple_search_string = (
                             'SN',  # фамилия 'SN='
                             'G',   # имя отчество 'G='
+                            'NotAfter',   # дата конца 'NotAfter:'
+                            'NotBefore',  # дата начала 'NotBefore:'
                             'CN',  # организация выдавшая сертификат 'CN='
                             'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
-                            'NotBefore',  # дата начала 'NotBefore:'
-                            'NotAfter',   # дата конца 'NotAfter:'
                             'datetime.datetime.date(datetime.datetime.now())',  # текущая дата
-                            'os.path.abspath(data_of_scan)',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
-                            'Серийный номер'  # отличие между
+                            'Серийный номер',  # отличие между органами выдавшими сертификат
+                            'os.path.abspath(data_of_scan)'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
                             )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
@@ -67,18 +67,18 @@ def processing_txt_files():
 
     # формирование list_of_data_from_cert
     for dump in temp_list_data_from_certs:
-        print()
-        print(dump[-1])
+        # print()
+        # print(dump[-1])
         list_string_data = []
         for dump_string in dump:
             dump_string = dump_string.strip()
 
             if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
-                print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
+                # print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
                 list_string_data.append(dump_string.split(":", maxsplit=1)[1].strip())
 
             if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
-                print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
+                # print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
                 list_string_data.append(dump_string.split("=", maxsplit=1)[1].strip())
 
         list_string_data.append(dump[-1])
@@ -86,9 +86,9 @@ def processing_txt_files():
         list_of_data_from_cert.append(list_string_data)
         list_string_data = []
 
-    print(list_of_data_from_cert)
+    # print(list_of_data_from_cert)
 
-    print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlx готова\n')
+    print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова\n')
 
 
 def do_xlsx():
@@ -106,7 +106,7 @@ def do_xlsx():
 
     file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
-    print('\n(4)...файл с датами собран\n')
+    print('\n(4)...файл с данными сертификатов собран\n')
 
 
 if __name__ == '__main__':
