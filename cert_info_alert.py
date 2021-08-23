@@ -47,9 +47,9 @@ def processing_txt_files():
                             'NotBefore',  # дата начала 'NotBefore:'
                             'CN',  # организация выдавшая сертификат 'CN='
                             'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
-                            'datetime.datetime.date(datetime.datetime.now())',  # текущая дата
                             'Серийный номер',  # отличие между органами выдавшими сертификат
-                            'полный путь до сертификата'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
+                            'полный путь до сертификата',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
+                            'текущая дата'  #datetime.datetime.date(datetime.datetime.now())
                             )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
@@ -95,13 +95,13 @@ def do_xlsx():
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
-    # собираю строку по правилу выгрузки и добавляю её в файл !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # собираю строку по правилу выгрузки и добавляю её в файл
     for xls_str in list_of_strings_from_files:
         file_xlsx_s.append(xls_str)
         # pass
 
-    # file_xlsx.save(name_file_xlsx.replace('cert','cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
-    file_xlsx.save(name_file_xlsx)
+    file_xlsx.save(name_file_xlsx.replace('cert','cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
+    # file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
     print('\n(4)...файл с данными сертификатов собран\n')
     print(f'сделано')
