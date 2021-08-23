@@ -76,7 +76,6 @@ def processing_txt_files():
             for string_from_need_list in list_of_need_strings:
                 if string_from_need_list.split(':', maxsplit=1)[0]:
                     # первая строка должна быть шапкой в xlsx
-
                     pass
 
             # создал список списков

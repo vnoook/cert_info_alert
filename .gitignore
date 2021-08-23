@@ -133,3 +133,4 @@ dmypy.json
 /txt_s/
 /cert.xlsx
 /~$cert.xlsx
+/cert_*.xlsx
