@@ -25,7 +25,7 @@ def clean_dir_txts():
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             os.remove(data_of_scan)
-    print('\n(1)...папка от старых дампов сертификатов очищена\n')
+    print('\n(1)...папка от старых дампов сертификатов очищена')
 
 
 # функция создающая дампы файлов и складывающая их в dir_txts путь
@@ -65,26 +65,19 @@ def processing_txt_files():
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
 
-                if string_from_file.split(':', maxsplit=1)[0] in tuple_search_string:
-                    # print(f'::::{string_from_file.split(":", maxsplit=1)[0]}::::{string_from_file.split(":", maxsplit=1)[1].strip()}')
-                    list_of_strings_from_files.append(string_from_file.split(":", maxsplit=1)[1].strip())
+                if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
+                    list_of_strings_from_files.append(string_from_file)
 
-                # print(string_from_file)
-                if string_from_file.split('=', maxsplit=1)[0] in tuple_search_string:
-                    # print(f'===={string_from_file.split("=", maxsplit=1)[0]}===={string_from_file.split("=", maxsplit=1)[1].strip()}')
-                    list_of_strings_from_files.append(string_from_file.split("=", maxsplit=1)[1].strip())
-
-
-            all_strings_from_file.append(os.path.abspath(data_of_scan))
+            list_of_strings_from_files.append(os.path.abspath(data_of_scan))
             # print(f'{all_strings_from_file = }')
 
-        list_of_strings_from_files.append(all_strings_from_file)
-        # print(list_of_strings_from_files)
+        # list_of_strings_from_files.append(all_strings_from_file)
+        print(list_of_strings_from_files)
 
-    print(*list_of_strings_from_files, sep='\n')
-    print()
+    # print(*list_of_strings_from_files, sep='\n')
+    # print()
 
-    print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова\n')
+    print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова')
 
 
 def do_xlsx():
