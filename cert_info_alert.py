@@ -63,16 +63,19 @@ def processing_txt_files():
             with open(data_of_scan.name, 'r') as txt_file:
                 all_strings_from_file = txt_file.read().splitlines()
 
-            # выбрал из всех строк те, которые имеют вхождение из tuple_search_string
+            # выбрал из всех строк те, которые имеют вхождения из tuple_search_string
             list_of_need_strings = []
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
-                if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
+                if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or\
+                            (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
                     list_of_need_strings.append(string_from_file)
+            # и добавил в последний индекс ссылку на дамп сертификата
             list_of_need_strings.append(os.path.abspath(data_of_scan))
 
             # тут из списка list_of_need_strings нужно вычислить лишние
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
+            dict_of_need_strings = {}
             for string_from_need_list in list_of_need_strings:
                 if string_from_need_list.split(':', maxsplit=1)[0]:
                     # первая строка должна быть шапкой в xlsx
@@ -81,8 +84,8 @@ def processing_txt_files():
             # создал список списков
             list_of_strings_from_files.append(list_of_need_strings)
 
-    # print(*list_of_strings_from_files, sep='\n')
-    print(list_of_strings_from_files)
+    print(*list_of_strings_from_files, sep='\n')
+    # print(list_of_strings_from_files)
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова')
 
