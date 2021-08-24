@@ -85,8 +85,9 @@ def processing_txt_files():
             # из списка list_of_need_strings нужно вычислить лишние
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
             for string_from_need_list in list_of_need_strings:
-                if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string):
+                if (string_from_need_list.split(':', maxsplit=1)[0] in tuple_search_string):
                     # первая строка должна быть шапкой в xlsx
+                    print(string_from_need_list.split(':', maxsplit=1))
                     pass
 
             # создал список списков
