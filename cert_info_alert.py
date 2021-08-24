@@ -91,8 +91,10 @@ def processing_txt_files():
 
             # создал список списков
             list_of_strings_from_files.append(list_of_need_strings)
+    # добавил в первую строку шапку из названий колонок
+    list_of_strings_from_files.insert(0, list(val for val in tuple_search_string))
 
-    print(*list_of_strings_from_files, sep='\n')
+    # print(*list_of_strings_from_files, sep='\n')
     # print(list_of_strings_from_files)
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова')
