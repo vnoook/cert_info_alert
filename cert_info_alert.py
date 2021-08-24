@@ -34,23 +34,30 @@ def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True)
-    print('\n(2)...дампы сертификатов вновь созданы\n')
+    print('\n(2)...дампы сертификатов вновь созданы')
 
 
 # функция чтения дампов сертификатов и формирования конечной таблицы для вывода её в xlsx
 def processing_txt_files():
     # Поля для поиска в файле
     tuple_search_string = (
-                            'SN',  # фамилия 'SN='
-                            'G',   # имя отчество 'G='
-                            'NotAfter',   # дата конца 'NotAfter:'
-                            'NotBefore',  # дата начала 'NotBefore:'
-                            'CN',  # организация выдавшая сертификат 'CN='
-                            'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
-                            'Серийный номер',  # отличие между органами выдавшими сертификат
-                            'полный путь до сертификата',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
-                            'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
-                            )
+                           'SN',  # фамилия 'SN='
+                           'G',   # имя отчество 'G='
+                           'NotAfter',   # дата конца 'NotAfter:'
+                           'NotBefore',  # дата начала 'NotBefore:'
+                           'CN',  # организация выдавшая сертификат 'CN='
+                           'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
+                           'Серийный номер',  # отличие между органами выдавшими сертификат
+                           'полный путь до сертификата',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
+                           'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
+                          )
+    # dict_of_need_strings = {}
+    # for value_of_tuple in tuple_search_string:
+    #     dict_of_need_strings[value_of_tuple] = value_of_tuple
+    # for index, value in enumerate(dict_of_need_strings, start=1):
+    #     print(index, value)
+    # print()
+
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
 
@@ -64,20 +71,21 @@ def processing_txt_files():
                 all_strings_from_file = txt_file.read().splitlines()
 
             # выбрал из всех строк те, которые имеют вхождения из tuple_search_string
+            # и заменил в строках слева один раз "=" на ":" для простоты в будущем
             list_of_need_strings = []
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
                 if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or\
                             (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
-                    list_of_need_strings.append(string_from_file)
+                    list_of_need_strings.append(string_from_file.replace('=', ':', 1))
+
             # и добавил в последний индекс ссылку на дамп сертификата
             list_of_need_strings.append(os.path.abspath(data_of_scan))
 
-            # тут из списка list_of_need_strings нужно вычислить лишние
+            # из списка list_of_need_strings нужно вычислить лишние
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
-            dict_of_need_strings = {}
             for string_from_need_list in list_of_need_strings:
-                if string_from_need_list.split(':', maxsplit=1)[0]:
+                if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string):
                     # первая строка должна быть шапкой в xlsx
                     pass
 
@@ -108,38 +116,19 @@ def do_xlsx():
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
     # file_xlsx.save(name_file_xlsx)
     file_xlsx.close()
-    print('\n(4)...файл с данными сертификатов собран\n')
-    print(f'сделано')
 
+    print('\n(4)...файл с данными сертификатов собран')
+    print('\n(5)...ГОТОВО!')
 
-if __name__ == '__main__':
+def run():
     clean_dir_txts()
     do_txt_from_cer()
     processing_txt_files()
     do_xlsx()
 
-# **********************************************************************************************
 
-    # # формирование1 list_of_strings_from_files
-    # for dump in list_of_strings_from_files:
-    #     # print()
-    #     # print(dump[-1])
-    #     list_of_strings_from_files = []
-    #     for dump_string in dump:
-    #         dump_string = dump_string.strip()
-    #
-    #         if dump_string.split(':', maxsplit=1)[0] in tuple_search_string:
-    #             # print(f'....{dump_string.split(":", maxsplit=1)[0]}....{dump_string.split(":", maxsplit=1)[1].strip()}')
-    #             list_of_strings_from_files.append(dump_string.split(":", maxsplit=1)[1].strip())
-    #
-    #         if dump_string.split('=', maxsplit=1)[0] in tuple_search_string:
-    #             # print(f'....{dump_string.split("=", maxsplit=1)[0]}....{dump_string.split("=", maxsplit=1)[1].strip()}')
-    #             list_of_strings_from_files.append(dump_string.split("=", maxsplit=1)[1].strip())
-    #
-    #     list_of_strings_from_files.append(dump[-1])
-    #
-    #     list_of_strings_from_files.append(list_of_strings_from_files)
-    #     list_of_strings_from_files = []
+if __name__ == '__main__':
+    run()
 
 # **********************************************************************************************
 
