@@ -10,6 +10,7 @@ import datetime
 import subprocess
 import openpyxl
 
+
 # переменные
 etx_txt = '.txt'  # расширение файлов с текстом
 dir_cers = r'cer_s'  # папка для сохранения сертификатов
@@ -43,7 +44,8 @@ def do_txt_from_cer():
     print('\n(2)...дампы сертификатов вновь созданы')
 
 
-# функция чтения дампов сертификатов и формирования конечной таблицы для вывода её в xlsx
+# функция чтения, фильтрации и сортировки дампов сертификатов
+# а также формирования конечной таблицы для вывода её в xlsx
 def processing_txt_files():
     # поля и их порядок для поиска в дампах
     # если добавить или удалить поля (кроме последнего), то алгоритм не собъётся
@@ -74,7 +76,7 @@ def processing_txt_files():
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
                 if (string_from_file.split(':', maxsplit=1)[0] in tuple_search_string) or\
-                            (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
+                   (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
                     list_of_need_strings.append(string_from_file.replace('=', ':', 1))
 
             # из списка list_of_need_strings нужно вычислить задвоенные суфиксы
@@ -89,7 +91,7 @@ def processing_txt_files():
                     suffix_of_need_string = string_from_need_list.split(':', maxsplit=1)[0]
 
                     if suffix_of_need_string == suffix:
-                        value_of_need_string = string_from_need_list.split(':', maxsplit=1)[1]
+                        value_of_string = string_from_need_list.split(':', maxsplit=1)[1]
                         # если счётчик равен 0, то это первое повторение суфикса, остальные будут игнорироваться
 
                         if count_suffix == 0:
@@ -97,9 +99,11 @@ def processing_txt_files():
 
                             if suffix_of_need_string == 'Хеш сертификата(sha1)':
                                 # удаление пробелов в Хеше
-                                list_of_need_strings_sorted.append(value_of_need_string.replace(' ',''))
+                                list_of_need_strings_sorted.append(value_of_string.replace(' ', ''))
+                            elif suffix_of_need_string in ('NotAfter', 'NotBefore'):
+                                list_of_need_strings_sorted.append(value_of_string.strip().split(' ', maxsplit=1)[0])
                             else:
-                                list_of_need_strings_sorted.append(value_of_need_string)
+                                list_of_need_strings_sorted.append(value_of_string.strip())
                         count_suffix += 1
 
                 # если за все проходы строк не найден суфикс, то вставить "заглушку"
@@ -123,22 +127,25 @@ def do_xlsx():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
+    # эта функция потом пригодится
     # print(datetime.datetime.date(datetime.datetime.now()))
 
+    # создание xlsx файла
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
-    # собираю строку по правилу выгрузки и добавляю её в файл
+    # читаю конечный список и добавляю его в файл
     for xls_str in list_of_strings_from_files:
         file_xlsx_s.append(xls_str)
-        # pass
 
+    # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
-    # file_xlsx.save(name_file_xlsx)
+    # закрываю файл
     file_xlsx.close()
 
     print('\n(4)...файл с данными сертификатов собран')
     print('\n(5)...ГОТОВО!')
+
 
 def run():
     clean_dir_txts()
@@ -149,16 +156,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-
-# **********************************************************************************************
-
-# print(*list(os.scandir()), sep='\n')
-# print(f'{data_of_scan.is_file() = }')
-# print(f'{data_of_scan.name = }')
-# # print(f'{os.path.split(data_of_scan) = }')
-# # print(f'{os.path.splitext(data_of_scan) = }')
-# # print(f'{os.path.splitext(os.path.split(data_of_scan)[1])[0] = }')
-# print(f'{os.path.splitext(os.path.split(data_of_scan)[1])[1] = }')
-# # print(f'{data_of_scan.path = }')
-# # print(f'{dir(data_of_scan) = }')
-# print()
