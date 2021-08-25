@@ -48,8 +48,8 @@ def processing_txt_files():
                            'CN',  # организация выдавшая сертификат 'CN='
                            'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
                            'Серийный номер',  # отличие между органами выдавшими сертификат
-                           'полный путь до сертификата',  # полный путь до сертификата  = os.path.abspath(data_of_scan)
-                           'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
+                           'полный путь до сертификата'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
+                           # 'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
                           )
     # dict_of_need_strings = {}
     # for value_of_tuple in tuple_search_string:
@@ -70,8 +70,8 @@ def processing_txt_files():
             with open(data_of_scan.name, 'r') as txt_file:
                 all_strings_from_file = txt_file.read().splitlines()
 
-            # выбрал из всех строк те, которые имеют вхождения из tuple_search_string
-            # и заменил в строках слева один раз "=" на ":" для простоты в будущем
+            # выбрал из всех строк те, которые имеют суфиксы из tuple_search_string
+            # и заменил в строках где есть первый слева символ "=" на ":", для простоты в будущем
             list_of_need_strings = []
             for string_from_file in all_strings_from_file:
                 string_from_file = string_from_file.strip()
@@ -79,26 +79,34 @@ def processing_txt_files():
                             (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
                     list_of_need_strings.append(string_from_file.replace('=', ':', 1))
 
-            # print(*list_of_need_strings, sep='\n')
-
             # из списка list_of_need_strings нужно вычислить задвоенные суфиксы
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
+            list_of_need_strings_sorted = []
             for suffix in tuple_search_string:
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
-                    if ((string_from_need_list.split(':', maxsplit=1)[0] == suffix)) and (count_suffix == 0):
-                        # и добавил в последний индекс ссылку на дамп сертификата
-                        list_of_need_strings.append(os.path.abspath(data_of_scan))
-
-                        list_of_strings_from_files.append(list_of_need_strings)
-                        print(string_from_need_list.split(':', maxsplit=1))
+                    string_suffix = string_from_need_list.split(':', maxsplit=1)[0]
+                    if (string_suffix == suffix) and (count_suffix == 0):
+                        if string_from_need_list.split(':', maxsplit=1)[1]:
+                            if string_suffix == 'Хеш сертификата(sha1)':
+                                list_of_need_strings_sorted.append(string_from_need_list.split(':', maxsplit=1)[1].replace(' ',''))
+                            else:
+                                list_of_need_strings_sorted.append(string_from_need_list.split(':', maxsplit=1)[1])
+                        else:
+                            list_of_need_strings_sorted.append('')
+                        # print(string_from_need_list.split(':', maxsplit=1))
                         count_suffix += 1
                     else:
                         del string_from_need_list
-            print('_'*40)
+
+            # print(*list_of_need_strings_sorted, sep='\n')
+
+            # и добавил в последний индекс ссылку на дамп сертификата
+            list_of_need_strings_sorted.append(os.path.abspath(data_of_scan))
+            # print('_'*40)
 
             # # создал список списков
-            # list_of_strings_from_files.append(list_of_need_strings)
+            list_of_strings_from_files.append(list_of_need_strings_sorted)
 
     # добавил в первую строку шапку из названий колонок
     list_of_strings_from_files.insert(0, list(val for val in tuple_search_string))
