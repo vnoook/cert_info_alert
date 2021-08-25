@@ -85,18 +85,28 @@ def processing_txt_files():
             for suffix in tuple_search_string:
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
-                    string_suffix = string_from_need_list.split(':', maxsplit=1)[0]
-                    if (string_suffix == suffix) and (count_suffix == 0):
-                        if string_from_need_list.split(':', maxsplit=1)[1]:
-                            if string_suffix == 'Хеш сертификата(sha1)':
-                                list_of_need_strings_sorted.append(string_from_need_list.split(':', maxsplit=1)[1].replace(' ',''))
+                    suffix_of_need_string = string_from_need_list.split(':', maxsplit=1)[0]
+                    if (suffix_of_need_string == suffix) and (count_suffix == 0):
+                        value_of_need_string = string_from_need_list.split(':', maxsplit=1)[1]
+                        if value_of_need_string != '':
+                            if suffix_of_need_string == 'Хеш сертификата(sha1)':
+                                list_of_need_strings_sorted.append(value_of_need_string.replace(' ',''))
                             else:
-                                list_of_need_strings_sorted.append(string_from_need_list.split(':', maxsplit=1)[1])
+                                list_of_need_strings_sorted.append(value_of_need_string)
                         else:
-                            list_of_need_strings_sorted.append('')
+                            list_of_need_strings_sorted.append('нет данных в дампе сертификата')
+
                         # print(string_from_need_list.split(':', maxsplit=1))
+
                         count_suffix += 1
+
                     else:
+                        if count_suffix == 0:
+                            # print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
+                            pass
+                        else:
+                            print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
+
                         del string_from_need_list
 
             # print(*list_of_need_strings_sorted, sep='\n')
