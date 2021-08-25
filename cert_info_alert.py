@@ -54,22 +54,20 @@ def processing_txt_files():
                            'CN',  # организация выдавшая сертификат 'CN='
                            'Хеш сертификата(sha1)',  # отпечаток 'Хеш сертификата(sha1):'
                            'Серийный номер',  # отличие между органами выдавшими сертификат
-                           'полный путь до сертификата'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
-                           # 'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
+                           'полный путь до дампа'  # полный путь до дампа
                           )
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
 
-    # чтение и обработка каждого файла в список, и добавление в конец списка "путь к файлу"
+    # чтение и обработка каждого файла в список, и добавление в конец списка "путь к дампу"
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
-
             # получил все строки из файла
             all_strings_from_file = []
             with open(data_of_scan.name, 'r') as txt_file:
                 all_strings_from_file = txt_file.read().splitlines()
 
-            # выбрал из всех строк те, которые имеют суфиксы из tuple_search_string
+            # выбрал из всех строк те, которые имеются суфиксы из tuple_search_string
             # и заменил в строках где есть первый слева символ "=" на ":", для простоты в будущем
             list_of_need_strings = []
             for string_from_file in all_strings_from_file:
@@ -81,11 +79,6 @@ def processing_txt_files():
             # из списка list_of_need_strings нужно вычислить задвоенные суфиксы
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
             list_of_need_strings_sorted = []
-
-            # print()
-            # print(*list_of_need_strings, sep='\n')
-            # print()
-
             for suffix in tuple_search_string:
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
