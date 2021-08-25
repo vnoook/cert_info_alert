@@ -79,19 +79,27 @@ def processing_txt_files():
                             (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
                     list_of_need_strings.append(string_from_file.replace('=', ':', 1))
 
-            # и добавил в последний индекс ссылку на дамп сертификата
-            list_of_need_strings.append(os.path.abspath(data_of_scan))
+            # print(*list_of_need_strings, sep='\n')
 
-            # из списка list_of_need_strings нужно вычислить лишние
+            # из списка list_of_need_strings нужно вычислить задвоенные суфиксы
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
-            for string_from_need_list in list_of_need_strings:
-                if (string_from_need_list.split(':', maxsplit=1)[0] in tuple_search_string):
-                    # первая строка должна быть шапкой в xlsx
-                    print(string_from_need_list.split(':', maxsplit=1))
-                    pass
+            for suffix in tuple_search_string:
+                count_suffix = 0
+                for string_from_need_list in list_of_need_strings:
+                    if ((string_from_need_list.split(':', maxsplit=1)[0] == suffix)) and (count_suffix == 0):
+                        # и добавил в последний индекс ссылку на дамп сертификата
+                        list_of_need_strings.append(os.path.abspath(data_of_scan))
 
-            # создал список списков
-            list_of_strings_from_files.append(list_of_need_strings)
+                        list_of_strings_from_files.append(list_of_need_strings)
+                        print(string_from_need_list.split(':', maxsplit=1))
+                        count_suffix += 1
+                    else:
+                        del string_from_need_list
+            print('_'*40)
+
+            # # создал список списков
+            # list_of_strings_from_files.append(list_of_need_strings)
+
     # добавил в первую строку шапку из названий колонок
     list_of_strings_from_files.insert(0, list(val for val in tuple_search_string))
 
