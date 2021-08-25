@@ -83,45 +83,34 @@ def processing_txt_files():
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
             list_of_need_strings_sorted = []
 
-            print()
-            print(*list_of_need_strings, sep='\n')
-            print()
+            # print()
+            # print(*list_of_need_strings, sep='\n')
+            # print()
 
             for suffix in tuple_search_string:
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
                     suffix_of_need_string = string_from_need_list.split(':', maxsplit=1)[0]
-                    if (suffix_of_need_string == suffix) and (count_suffix == 0):
+                    if suffix_of_need_string == suffix:  # and (count_suffix == 0):
                         value_of_need_string = string_from_need_list.split(':', maxsplit=1)[1]
-                        if value_of_need_string != '':
+                        if count_suffix == 0:
                             if suffix_of_need_string == 'Хеш сертификата(sha1)':
                                 list_of_need_strings_sorted.append(value_of_need_string.replace(' ',''))
                             else:
                                 list_of_need_strings_sorted.append(value_of_need_string)
-                        else:
-                            list_of_need_strings_sorted.append('нет данных в дампе сертификата')
-
-                        # print(string_from_need_list.split(':', maxsplit=1))
-
                         count_suffix += 1
+                if count_suffix == 0:
+                    list_of_need_strings_sorted.append('нет данных в дампе сертификата')
+                    # print(f'{suffix = } ... {count_suffix = } ... {string_from_need_list}')
+                    pass
 
-                    else:
-                        if count_suffix == 0:
-                            # print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
-                            pass
-                        else:
-                            # print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
-                            pass
-
-                        # del string_from_need_list
-
+            # print(string_from_need_list.split(':', maxsplit=1))
             # print(*list_of_need_strings_sorted, sep='\n')
 
             # и добавил в последний индекс ссылку на дамп сертификата
-            list_of_need_strings_sorted.append(os.path.abspath(data_of_scan))
-            # print('_'*40)
+            list_of_need_strings_sorted[-1] = os.path.abspath(data_of_scan)
 
-            # # создал список списков
+            # создал список списков
             list_of_strings_from_files.append(list_of_need_strings_sorted)
 
     # добавил в первую строку шапку из названий колонок
