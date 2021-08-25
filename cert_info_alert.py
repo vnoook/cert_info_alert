@@ -82,6 +82,11 @@ def processing_txt_files():
             # из списка list_of_need_strings нужно вычислить задвоенные суфиксы
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
             list_of_need_strings_sorted = []
+
+            print()
+            print(*list_of_need_strings, sep='\n')
+            print()
+
             for suffix in tuple_search_string:
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
@@ -105,9 +110,10 @@ def processing_txt_files():
                             # print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
                             pass
                         else:
-                            print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
+                            # print(f'{suffix = }  {count_suffix = } {string_from_need_list}')
+                            pass
 
-                        del string_from_need_list
+                        # del string_from_need_list
 
             # print(*list_of_need_strings_sorted, sep='\n')
 
