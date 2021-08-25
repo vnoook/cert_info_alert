@@ -14,32 +14,38 @@ import openpyxl
 etx_txt = '.txt'  # расширение файлов с текстом
 dir_cers = r'cer_s'  # папка для сохранения сертификатов
 dir_txts = r'txt_s'  # папка для дампов сертификатов
-# команда для командной строки windows = for /r cer_s %i in (*.cer) do certutil "%i" > "txt_s\%~ni.txt"
+# команда для командной строки
 cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
+# файл шаблон для называния файла выгрузки
 name_file_xlsx = 'cert.xlsx'
+# конечный список со строками данных в нужном порядке который выгружается в эксель
 list_of_strings_from_files = []
 
 
-# функция очищающая папку dir_txts для создания новых дампов сертификатов
+# функция очищающая папку {dir_txts} для создания новых дампов сертификатов
 def clean_dir_txts():
+    # переход в папку дампов
     os.chdir(os.path.join(os.getcwd(), dir_txts))
+    # поиск файлов txt и их удаление
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
             os.remove(data_of_scan)
     print('\n(1)...папка от старых дампов сертификатов очищена')
 
 
-# функция создающая дампы файлов и складывающая их в dir_txts путь
+# функция создающая дампы файлов и складывающая их в папку {dir_txts}
 def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    # запуск процесса создания дампов без вывода на экран результатов
     subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True)
     print('\n(2)...дампы сертификатов вновь созданы')
 
 
 # функция чтения дампов сертификатов и формирования конечной таблицы для вывода её в xlsx
 def processing_txt_files():
-    # Поля для поиска в файле
+    # поля и их порядок для поиска в дампах
+    # если добавить или удалить поля (кроме последнего), то алгоритм не собъётся
     tuple_search_string = (
                            'SN',  # фамилия 'SN='
                            'G',   # имя отчество 'G='
@@ -51,13 +57,6 @@ def processing_txt_files():
                            'полный путь до сертификата'  # полный путь до сертификата  = os.path.abspath(data_of_scan)
                            # 'текущая дата'  # datetime.datetime.date(datetime.datetime.now())
                           )
-    # dict_of_need_strings = {}
-    # for value_of_tuple in tuple_search_string:
-    #     dict_of_need_strings[value_of_tuple] = value_of_tuple
-    # for index, value in enumerate(dict_of_need_strings, start=1):
-    #     print(index, value)
-    # print()
-
     # переход в папку с дампами
     os.chdir(os.path.join(os.getcwd(), dir_txts))
 
