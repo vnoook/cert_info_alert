@@ -20,6 +20,7 @@ cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\
 name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
 list_of_strings_from_files = []
+value_empty_string = 'нет данных в дампе сертификата'
 
 
 # функция очищающая папку {dir_txts} для создания новых дампов сертификатов
@@ -80,26 +81,32 @@ def processing_txt_files():
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
             list_of_need_strings_sorted = []
             for suffix in tuple_search_string:
+
+                # счётчик количества повторений суфиксов
+                # если не ноль, то в списке есть повторения, которые надо игнорировать
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
                     suffix_of_need_string = string_from_need_list.split(':', maxsplit=1)[0]
-                    if suffix_of_need_string == suffix:  # and (count_suffix == 0):
+
+                    if suffix_of_need_string == suffix:
                         value_of_need_string = string_from_need_list.split(':', maxsplit=1)[1]
+                        # если счётчик равен 0, то это первое повторение суфикса, остальные будут игнорироваться
+
                         if count_suffix == 0:
+                            # индивидуальные обработки колонок
+
                             if suffix_of_need_string == 'Хеш сертификата(sha1)':
+                                # удаление пробелов в Хеше
                                 list_of_need_strings_sorted.append(value_of_need_string.replace(' ',''))
                             else:
                                 list_of_need_strings_sorted.append(value_of_need_string)
                         count_suffix += 1
+
+                # если за все проходы строк не найден суфикс, то вставить "заглушку"
                 if count_suffix == 0:
-                    list_of_need_strings_sorted.append('нет данных в дампе сертификата')
-                    # print(f'{suffix = } ... {count_suffix = } ... {string_from_need_list}')
-                    pass
+                    list_of_need_strings_sorted.append(value_empty_string)
 
-            # print(string_from_need_list.split(':', maxsplit=1))
-            # print(*list_of_need_strings_sorted, sep='\n')
-
-            # и добавил в последний индекс ссылку на дамп сертификата
+            # добавил в последний индекс ссылку на дамп сертификата
             list_of_need_strings_sorted[-1] = os.path.abspath(data_of_scan)
 
             # создал список списков
@@ -107,9 +114,6 @@ def processing_txt_files():
 
     # добавил в первую строку шапку из названий колонок
     list_of_strings_from_files.insert(0, list(val for val in tuple_search_string))
-
-    # print(*list_of_strings_from_files, sep='\n')
-    # print(list_of_strings_from_files)
 
     print('\n(3)...дампы сертификатов прочитаны и таблица для записи в xlsx готова')
 
