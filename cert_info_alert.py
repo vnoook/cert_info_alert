@@ -127,26 +127,20 @@ def do_xlsx():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # эта функция потом пригодится
-    # print(datetime.datetime.date(datetime.datetime.now()))
-    # curDate = datetime.now().date()
-    # curDate = datetime(2016, 11, 18).date()
-
     # создание xlsx файла
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
+    row_of_list = len(list_of_strings_from_files)
+    col_of_list = len(list_of_strings_from_files[0])
 
-
-    print(f'{file_xlsx_s.max_column = }  {file_xlsx_s.max_row = }')
-
-    # читаю конечный список и добавляю его в файл
-    for xls_str in list_of_strings_from_files:
-        file_xlsx_s.append(xls_str)
-
-    print(f'{file_xlsx_s.max_column = }  {file_xlsx_s.max_row = }')
-
-
+    if row_of_list > 0:
+        # print(f'{row_of_list = } ... {col_of_list = }')
+        for col in range(1, col_of_list+1):
+            for row in range(1, row_of_list + 1):
+                value_of_string_for_cell = list_of_strings_from_files[row-1][col-1]
+                # print(f'{row = } ... {col = } ... {value_of_string_for_cell}')
+                file_xlsx_s.cell(row, col, value_of_string_for_cell)
 
 
     # сохраняю файл xlsx с добавлением в имя текущей даты
@@ -167,3 +161,14 @@ def run():
 
 if __name__ == '__main__':
     run()
+
+    # эта функция потом пригодится
+    # print(datetime.datetime.date(datetime.datetime.now()))
+    # curDate = datetime.now().date()
+    # curDate = datetime(2016, 11, 18).date()
+
+    # # читаю конечный список и добавляю его в файл
+    # for xls_str in list_of_strings_from_files:
+    #     file_xlsx_s.append(xls_str)
+
+
