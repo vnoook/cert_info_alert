@@ -18,7 +18,8 @@ import os
 import datetime
 import subprocess
 import openpyxl
-
+import openpyxl.utils
+import openpyxl.styles
 
 # переменные
 etx_txt = '.txt'  # расширение файлов с текстом
@@ -165,6 +166,8 @@ def do_xlsx():
                 file_xlsx_s.cell(row, col, value_of_string_for_cell)
 
 
+    file_xlsx_s.auto_filter.ref = 'A1:'+"H"+str(col_of_list)
+
     # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
     # закрываю файл
@@ -172,7 +175,7 @@ def do_xlsx():
 
     print('\n(4)...файл с данными сертификатов собран')
     print('\n(5)...ГОТОВО!')
-    input('\nнажмите ENTER')
+    # input('\nнажмите ENTER')
 
 
 def run():
@@ -186,13 +189,38 @@ def run():
 if __name__ == '__main__':
     run()
 
+    # # читаю конечный список и добавляю его в файл
+    # for xls_str in list_of_strings_from_files:
+    #     file_xlsx_s.append(xls_str)
+
     # эта функция потом пригодится
     # print(datetime.datetime.date(datetime.datetime.now()))
     # curDate = datetime.now().date()
     # curDate = datetime(2016, 11, 18).date()
+    # datetime.datetime(2010, 7, 21)
+    # ws['A1'].number_format
+    # 'yyyy-mm-dd h:mm:ss'
 
-    # # читаю конечный список и добавляю его в файл
-    # for xls_str in list_of_strings_from_files:
-    #     file_xlsx_s.append(xls_str)
+    # cell.fill = openpyxl.styles.PatternFill(start_color='878787', end_color='878787', fill_type='solid')
+    # wb_IC_cells_range[indexR_IC][indexC_IC].fill = openpyxl.styles.PatternFill(start_color='FF0000', end_color='FF0000', fill_type='solid')
+
+    # ft = Font(color="FF0000")
+    # a1.font = ft
+
+    # 00FF0000 - красный
+    # 00FF99CC - розовый
+    # 00C0C0C0 - серый
+
+    # >> > col = ws.column_dimensions['A']
+    # >> > col.font = Font(bold=True)
+    # >> > row = ws.row_dimensions[1]
+    # >> > row.font = Font(underline="single")
+
+    # >>> highlight = NamedStyle(name="highlight")
+    # >>> highlight.font = Font(bold=True, size=20)
+    # >>> bd = Side(style='thick', color="000000")
+    # >>> highlight.border = Border(left=bd, top=bd, right=bd, bottom=bd)
+
+
 
 
