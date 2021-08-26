@@ -129,14 +129,25 @@ def do_xlsx():
 
     # эта функция потом пригодится
     # print(datetime.datetime.date(datetime.datetime.now()))
+    # curDate = datetime.now().date()
+    # curDate = datetime(2016, 11, 18).date()
 
     # создание xlsx файла
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
+
+
+    print(f'{file_xlsx_s.max_column = }  {file_xlsx_s.max_row = }')
+
     # читаю конечный список и добавляю его в файл
     for xls_str in list_of_strings_from_files:
         file_xlsx_s.append(xls_str)
+
+    print(f'{file_xlsx_s.max_column = }  {file_xlsx_s.max_row = }')
+
+
+
 
     # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
