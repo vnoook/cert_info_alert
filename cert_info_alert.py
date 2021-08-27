@@ -20,6 +20,7 @@ import subprocess
 import openpyxl
 import openpyxl.utils
 import openpyxl.styles
+import openpyxl.worksheet.dimensions
 
 # переменные
 etx_txt = '.txt'  # расширение файлов с текстом
@@ -150,23 +151,54 @@ def do_xlsx():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
+    # вычисление текущей даты в формате дд-мм-гггг
+    # print(datetime.now().date())
+    # print(datetime(2016, 11, 18).date())
+    # print(datetime.datetime(2010, 7, 21))
+    # print(datetime.datetime.date(datetime.datetime.now()))
+
+    # стиль для ячеек с 30 днями
+    style_30 = openpyxl.styles.NamedStyle(name='style_30')
+    style_30.fill = openpyxl.styles.PatternFill('solid', fgColor='00FF0000')
+    # стиль для ячеек с 45 днями
+    style_45 = openpyxl.styles.NamedStyle(name='style_45')
+    style_45.fill = openpyxl.styles.PatternFill('solid', fgColor='00FF99CC')
+    # стиль для ячеек с -1 днями
+    style_1 = openpyxl.styles.NamedStyle(name='style_1')
+    style_1.fill = openpyxl.styles.PatternFill('solid', fgColor='00C0C0C0')
+
     # создание xlsx файла
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
 
+    # вычисляются "высота" и "длина" данных
     row_of_list = len(list_of_strings_from_files)
     col_of_list = len(list_of_strings_from_files[0])
 
+    # заполнение ячеек значениями с предварительной их обработкой
     if row_of_list > 0:
-        # print(f'{row_of_list = } ... {col_of_list = }')
         for col in range(1, col_of_list+1):
-            for row in range(1, row_of_list + 1):
+            for row in range(1, row_of_list+1):
                 value_of_string_for_cell = list_of_strings_from_files[row-1][col-1]
-                # print(f'{row = } ... {col = } ... {value_of_string_for_cell}')
+
+                if file_xlsx_s.cell(1, col).value == 'NotAfter':  # ??????????????????????????????????????????
+                    file_xlsx_s.cell(row, col).style = style_30
+
                 file_xlsx_s.cell(row, col, value_of_string_for_cell)
 
+    # включение фильтра
+    file_xlsx_s.auto_filter.ref = 'A1:' + openpyxl.utils.get_column_letter(col_of_list)+'1'
 
-    file_xlsx_s.auto_filter.ref = 'A1:'+"H"+str(col_of_list)
+    # установка автоширины ячеек по всем колонкам
+    for col_auto_size in range(1, col_of_list+1):
+        file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].auto_size = True
+        # file_xlsx_s.column_dimensions['A'].auto_size = True
+        # file_xlsx_s.column_dimensions['B'].auto_size = True
+        # file_xlsx_s.column_dimensions['C'].auto_size = True
+    # установка ширины ячеек по всем колонкам
+    # file_xlsx_s.column_dimensions["A"].width = 50 # прим. колво символов
+    # file_xlsx_s.column_dimensions["B"].width = 20
+
 
     # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
@@ -193,34 +225,9 @@ if __name__ == '__main__':
     # for xls_str in list_of_strings_from_files:
     #     file_xlsx_s.append(xls_str)
 
-    # эта функция потом пригодится
-    # print(datetime.datetime.date(datetime.datetime.now()))
-    # curDate = datetime.now().date()
-    # curDate = datetime(2016, 11, 18).date()
-    # datetime.datetime(2010, 7, 21)
     # ws['A1'].number_format
     # 'yyyy-mm-dd h:mm:ss'
-
-    # cell.fill = openpyxl.styles.PatternFill(start_color='878787', end_color='878787', fill_type='solid')
-    # wb_IC_cells_range[indexR_IC][indexC_IC].fill = openpyxl.styles.PatternFill(start_color='FF0000', end_color='FF0000', fill_type='solid')
-
-    # ft = Font(color="FF0000")
-    # a1.font = ft
 
     # 00FF0000 - красный
     # 00FF99CC - розовый
     # 00C0C0C0 - серый
-
-    # >> > col = ws.column_dimensions['A']
-    # >> > col.font = Font(bold=True)
-    # >> > row = ws.row_dimensions[1]
-    # >> > row.font = Font(underline="single")
-
-    # >>> highlight = NamedStyle(name="highlight")
-    # >>> highlight.font = Font(bold=True, size=20)
-    # >>> bd = Side(style='thick', color="000000")
-    # >>> highlight.border = Border(left=bd, top=bd, right=bd, bottom=bd)
-
-
-
-
