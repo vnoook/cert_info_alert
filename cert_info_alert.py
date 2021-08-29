@@ -6,7 +6,8 @@
 # создаются дампы с текстовом формате.
 # Эти дампы анализируются, и сортируются по порядку изложенному в переменной {tuple_search_string}
 # и выгружаются в xlsx файл. В полученном файле xlsx подсвечиваются ячейки дат со скором окончанием.
-# Красным подсвечиваются сроки "месяц до окончания" - 30 дней, "розовым" полтора месяца - 45 дней.
+# Красным подсвечиваются сроки "месяц до окончания" - 30 дней, "розовым" полтора месяца - 45 дней,
+# "зелёным" более 45 дней, "серым" просроченные сертификаты от текущей даты.
 # ...
 # INSTALL
 # pip install openpyxl
@@ -33,7 +34,6 @@ name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
 list_of_strings_from_files = []
 value_empty_string = 'нет данных в дампе сертификата'
-
 
 
 # проверка на существование папок ({dir_cers}, {dir_txts}) для сертификатов и дампов
@@ -125,7 +125,10 @@ def processing_txt_files():
                                 # удаление пробелов в Хеше
                                 list_of_need_strings_sorted.append(value_of_string.replace(' ', ''))
                             elif suffix_of_need_string in ('NotAfter', 'NotBefore'):
-                                list_of_need_strings_sorted.append(value_of_string.strip().split(' ', maxsplit=1)[0])
+                                date_val = value_of_string.strip().split(' ', maxsplit=1)[0].replace('.', '-')
+                                # print(date_val)
+                                # print(datetime.datetime.strptime(date_val, '%d-%m-%Y'))
+                                list_of_need_strings_sorted.append(datetime.datetime.strptime(date_val, '%d-%m-%Y'))
                             else:
                                 list_of_need_strings_sorted.append(value_of_string.strip())
                         count_suffix += 1
@@ -152,20 +155,34 @@ def do_xlsx():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     # вычисление текущей даты в формате дд-мм-гггг
-    # print(datetime.now().date())
-    # print(datetime(2016, 11, 18).date())
-    # print(datetime.datetime(2010, 7, 21))
-    # print(datetime.datetime.date(datetime.datetime.now()))
+    today_date = datetime.datetime.now().date()
+    # print('------------------')
+    # print(f'today_date = ')
+    # print(f'datetime.datetime.now().date()                                  = {datetime.datetime.now().date()} ... {type(datetime.datetime.now().date())}')
+    # print(f'datetime.datetime.date(datetime.datetime.now())                 = {datetime.datetime.date(datetime.datetime.now())} ... {type(datetime.datetime.date(datetime.datetime.now()))}')
+    # print(f'datetime.datetime(2010, 7, 21)                                  = {datetime.datetime(2010, 7, 21)} ... {type(datetime.datetime(2010, 7, 21))}')
+    # print(f'datetime.datetime(2010, 7, 21).date()                           = {datetime.datetime(2010, 7, 21).date()} ... {type(datetime.datetime(2010, 7, 21).date())}')
+    # print(f'datetime.datetime(2010, 7, 21).strftime("%d.%m.%y")             = {datetime.datetime(2010, 7, 21).strftime("%d.%m.%y")} ... {type(datetime.datetime(2010, 7, 21).strftime("%d.%m.%y"))}')
+    # print(f'datetime.datetime(2010, 7, 21).strftime("%d-%m-%y")             = {datetime.datetime(2010, 7, 21).strftime("%d-%m-%y")} ... {type(datetime.datetime(2010, 7, 21).strftime("%d-%m-%y"))}')
+    # print(f'datetime.datetime(2010, 7, 21) - datetime.datetime(2010, 7, 21) = {datetime.datetime(2010, 7, 21) - datetime.datetime(2010, 7, 21)} ... {type(datetime.datetime(2010, 7, 21) - datetime.datetime(2010, 7, 21))}')
+    # print(f'datetime.datetime(2010, 7, 21) - datetime.timedelta(30)         = {datetime.datetime(2010, 7, 21) - datetime.timedelta(30)} ... {type(datetime.datetime(2010, 7, 21) - datetime.timedelta(30))}')
+    # print('------------------')
 
-    # стиль для ячеек с 30 днями
-    style_30 = openpyxl.styles.NamedStyle(name='style_30')
-    style_30.fill = openpyxl.styles.PatternFill('solid', fgColor='00FF0000')
-    # стиль для ячеек с 45 днями
-    style_45 = openpyxl.styles.NamedStyle(name='style_45')
-    style_45.fill = openpyxl.styles.PatternFill('solid', fgColor='00FF99CC')
     # стиль для ячеек с -1 днями
     style_1 = openpyxl.styles.NamedStyle(name='style_1')
-    style_1.fill = openpyxl.styles.PatternFill('solid', fgColor='00C0C0C0')
+    style_1.fill = openpyxl.styles.PatternFill('solid', fgColor='00C0C0C0')   # серый
+    # стиль для ячеек между 0-30 днями
+    style_30 = openpyxl.styles.NamedStyle(name='style_30')
+    style_30.fill = openpyxl.styles.PatternFill('solid', fgColor='00FF0000')  # красный
+    # стиль для ячеек между 30-45 днями
+    style_45 = openpyxl.styles.NamedStyle(name='style_45')
+    style_45.fill = openpyxl.styles.PatternFill('solid', fgColor='00FF99CC')  # розовый
+    # стиль для ячеек с более 45 днями
+    style_46 = openpyxl.styles.NamedStyle(name='style_46')
+    style_46.fill = openpyxl.styles.PatternFill('solid', fgColor='0099CC00')  # зелёный
+
+    style_00 = openpyxl.styles.NamedStyle(name='style_00')
+    style_00.fill = openpyxl.styles.PatternFill('solid', fgColor='00000000')  # зелёный
 
     # создание xlsx файла
     file_xlsx = openpyxl.Workbook()
@@ -181,24 +198,44 @@ def do_xlsx():
             for row in range(1, row_of_list+1):
                 value_of_string_for_cell = list_of_strings_from_files[row-1][col-1]
 
-                if file_xlsx_s.cell(1, col).value == 'NotAfter':  # ??????????????????????????????????????????
-                    file_xlsx_s.cell(row, col).style = style_30
+                if file_xlsx_s.cell(1, col).value == 'NotAfter':
+                    cert_date = datetime.datetime.date(value_of_string_for_cell)
+                    delta_date = cert_date - today_date
+                    # print(cert_date, type(cert_date))
+                    # print(today_date, type(today_date))
 
-                file_xlsx_s.cell(row, col, value_of_string_for_cell)
+                    if delta_date <= datetime.timedelta(0):
+                        file_xlsx_s.cell(row, col).style = style_1
+                    elif (delta_date > datetime.timedelta(0)) and (delta_date <= datetime.timedelta(30)):
+                        file_xlsx_s.cell(row, col).style = style_30
+                    elif (delta_date > datetime.timedelta(30)) and (delta_date <= datetime.timedelta(45)):
+                        file_xlsx_s.cell(row, col).style = style_45
+                    elif delta_date > datetime.timedelta(45):
+                        file_xlsx_s.cell(row, col).style = style_46
+                    else:
+                        file_xlsx_s.cell(row, col).style = style_00
+
+                    file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
+
+                elif file_xlsx_s.cell(1, col).value == 'NotBefore':
+                    file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
+
+                else:
+                    file_xlsx_s.cell(row, col, value_of_string_for_cell)
 
     # включение фильтра
     file_xlsx_s.auto_filter.ref = 'A1:' + openpyxl.utils.get_column_letter(col_of_list)+'1'
 
+    # установка ширины ячеек по всем колонкам
+    file_xlsx_s.column_dimensions["A"].width = 30 # прим. колво символов
+    file_xlsx_s.column_dimensions["B"].width = 20
+
     # установка автоширины ячеек по всем колонкам
     for col_auto_size in range(1, col_of_list+1):
         file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].auto_size = True
-        # file_xlsx_s.column_dimensions['A'].auto_size = True
-        # file_xlsx_s.column_dimensions['B'].auto_size = True
-        # file_xlsx_s.column_dimensions['C'].auto_size = True
-    # установка ширины ячеек по всем колонкам
-    # file_xlsx_s.column_dimensions["A"].width = 50 # прим. колво символов
-    # file_xlsx_s.column_dimensions["B"].width = 20
-
+        file_xlsx_s.column_dimensions['A'].auto_size = True
+        file_xlsx_s.column_dimensions['B'].auto_size = True
+        file_xlsx_s.column_dimensions['C'].auto_size = True
 
     # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
@@ -227,7 +264,3 @@ if __name__ == '__main__':
 
     # ws['A1'].number_format
     # 'yyyy-mm-dd h:mm:ss'
-
-    # 00FF0000 - красный
-    # 00FF99CC - розовый
-    # 00C0C0C0 - серый
