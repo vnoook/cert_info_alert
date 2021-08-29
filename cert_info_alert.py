@@ -33,6 +33,7 @@ cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\
 name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
 list_of_strings_from_files = []
+# строка для заполнения ячеек с данными из "нестандартных" сертификатов
 value_empty_string = 'нет данных в дампе сертификата'
 
 
@@ -156,17 +157,6 @@ def do_xlsx():
 
     # вычисление текущей даты в формате дд-мм-гггг
     today_date = datetime.datetime.now().date()
-    # print('------------------')
-    # print(f'today_date = ')
-    # print(f'datetime.datetime.now().date()                                  = {datetime.datetime.now().date()} ... {type(datetime.datetime.now().date())}')
-    # print(f'datetime.datetime.date(datetime.datetime.now())                 = {datetime.datetime.date(datetime.datetime.now())} ... {type(datetime.datetime.date(datetime.datetime.now()))}')
-    # print(f'datetime.datetime(2010, 7, 21)                                  = {datetime.datetime(2010, 7, 21)} ... {type(datetime.datetime(2010, 7, 21))}')
-    # print(f'datetime.datetime(2010, 7, 21).date()                           = {datetime.datetime(2010, 7, 21).date()} ... {type(datetime.datetime(2010, 7, 21).date())}')
-    # print(f'datetime.datetime(2010, 7, 21).strftime("%d.%m.%y")             = {datetime.datetime(2010, 7, 21).strftime("%d.%m.%y")} ... {type(datetime.datetime(2010, 7, 21).strftime("%d.%m.%y"))}')
-    # print(f'datetime.datetime(2010, 7, 21).strftime("%d-%m-%y")             = {datetime.datetime(2010, 7, 21).strftime("%d-%m-%y")} ... {type(datetime.datetime(2010, 7, 21).strftime("%d-%m-%y"))}')
-    # print(f'datetime.datetime(2010, 7, 21) - datetime.datetime(2010, 7, 21) = {datetime.datetime(2010, 7, 21) - datetime.datetime(2010, 7, 21)} ... {type(datetime.datetime(2010, 7, 21) - datetime.datetime(2010, 7, 21))}')
-    # print(f'datetime.datetime(2010, 7, 21) - datetime.timedelta(30)         = {datetime.datetime(2010, 7, 21) - datetime.timedelta(30)} ... {type(datetime.datetime(2010, 7, 21) - datetime.timedelta(30))}')
-    # print('------------------')
 
     # стиль для ячеек с -1 днями
     style_1 = openpyxl.styles.NamedStyle(name='style_1')
@@ -181,9 +171,6 @@ def do_xlsx():
     style_46 = openpyxl.styles.NamedStyle(name='style_46')
     style_46.fill = openpyxl.styles.PatternFill('solid', fgColor='0099CC00')  # зелёный
 
-    style_00 = openpyxl.styles.NamedStyle(name='style_00')
-    style_00.fill = openpyxl.styles.PatternFill('solid', fgColor='00000000')  # зелёный
-
     # создание xlsx файла
     file_xlsx = openpyxl.Workbook()
     file_xlsx_s = file_xlsx.active
@@ -193,17 +180,20 @@ def do_xlsx():
     col_of_list = len(list_of_strings_from_files[0])
 
     # заполнение ячеек значениями с предварительной их обработкой
+    # а также подсветка в зависимости от значения
     if row_of_list > 0:
         for col in range(1, col_of_list+1):
             for row in range(1, row_of_list+1):
                 value_of_string_for_cell = list_of_strings_from_files[row-1][col-1]
 
+                # если ячейки с датами, то подсветить
                 if file_xlsx_s.cell(1, col).value == 'NotAfter':
+                    # дата из сертификата
                     cert_date = datetime.datetime.date(value_of_string_for_cell)
+                    # разница между датой из сертификата и текущей
                     delta_date = cert_date - today_date
-                    # print(cert_date, type(cert_date))
-                    # print(today_date, type(today_date))
 
+                    # распределение по стилям разных значений разниц дат
                     if delta_date <= datetime.timedelta(0):
                         file_xlsx_s.cell(row, col).style = style_1
                     elif (delta_date > datetime.timedelta(0)) and (delta_date <= datetime.timedelta(30)):
@@ -212,8 +202,6 @@ def do_xlsx():
                         file_xlsx_s.cell(row, col).style = style_45
                     elif delta_date > datetime.timedelta(45):
                         file_xlsx_s.cell(row, col).style = style_46
-                    else:
-                        file_xlsx_s.cell(row, col).style = style_00
 
                     file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
 
@@ -227,15 +215,15 @@ def do_xlsx():
     file_xlsx_s.auto_filter.ref = 'A1:' + openpyxl.utils.get_column_letter(col_of_list)+'1'
 
     # установка ширины ячеек по всем колонкам
-    file_xlsx_s.column_dimensions["A"].width = 30 # прим. колво символов
-    file_xlsx_s.column_dimensions["B"].width = 20
+    # file_xlsx_s.column_dimensions["A"].width = 30 # прим. колво символов
+    # file_xlsx_s.column_dimensions["B"].width = 20
 
     # установка автоширины ячеек по всем колонкам
     for col_auto_size in range(1, col_of_list+1):
         file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].auto_size = True
-        file_xlsx_s.column_dimensions['A'].auto_size = True
-        file_xlsx_s.column_dimensions['B'].auto_size = True
-        file_xlsx_s.column_dimensions['C'].auto_size = True
+        # file_xlsx_s.column_dimensions['A'].auto_size = True
+        # file_xlsx_s.column_dimensions['B'].auto_size = True
+        # file_xlsx_s.column_dimensions['C'].auto_size = True
 
     # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
