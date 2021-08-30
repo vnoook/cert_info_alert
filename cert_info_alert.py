@@ -208,6 +208,10 @@ def do_xlsx():
                 elif file_xlsx_s.cell(1, col).value == 'NotBefore':
                     file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
 
+                elif file_xlsx_s.cell(1, col).value == 'полный путь до дампа':
+                    file_xlsx_s.cell(row, col).hyperlink = value_of_string_for_cell.replace('.txt', '.cer').replace(dir_txts, dir_cers)
+                    file_xlsx_s.cell(row, col).value = value_of_string_for_cell
+
                 else:
                     file_xlsx_s.cell(row, col, value_of_string_for_cell)
 
