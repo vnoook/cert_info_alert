@@ -21,7 +21,7 @@ import subprocess
 import openpyxl
 import openpyxl.utils
 import openpyxl.styles
-import openpyxl.worksheet.dimensions
+# import openpyxl.worksheet.dimensions
 
 # переменные
 etx_txt = '.txt'  # расширение файлов с текстом
@@ -35,7 +35,6 @@ name_file_xlsx = 'cert.xlsx'
 list_of_strings_from_files = []
 # строка для заполнения ячеек с данными из "нестандартных" сертификатов
 value_empty_string = 'нет данных в дампе сертификата'
-
 
 # проверка на существование папок ({dir_cers}, {dir_txts}) для сертификатов и дампов
 # и создание их, если их нет
@@ -65,14 +64,17 @@ def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
+    # TODO
     # запуск процесса создания дампов без вывода на экран результатов
-    proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
+    subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
 
+    # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
+    # proc = subprocess.run('notepad.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
     # os.system(cer_command)
     # subprocess.Popen(cer_command, stdout=subprocess.DEVNULL, shell=True)
     # proc = subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
 
-    print(proc)
+    # print(proc)
 
     print('\n(2)...дампы сертификатов вновь созданы')
 
@@ -191,6 +193,7 @@ def do_xlsx():
     # а также подсветка в зависимости от значения
     if row_of_list > 0:
         for col in range(1, col_of_list+1):
+            max_len_value_of_col = 0
             for row in range(1, row_of_list+1):
                 value_of_string_for_cell = list_of_strings_from_files[row-1][col-1]
 
@@ -224,19 +227,37 @@ def do_xlsx():
                 else:
                     file_xlsx_s.cell(row, col, value_of_string_for_cell)
 
+                if len(str(file_xlsx_s.cell(row, col).value)) > max_len_value_of_col:
+                    max_len_value_of_col = len(str(value_of_string_for_cell).strip())
+                    # print(max_len_value_of_col)
+
+            file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col)].width = max_len_value_of_col
+            print(max_len_value_of_col)
+            max_len_value_of_col = 0
+
+
+
+
+    # TODO
+    # установка ширины ячеек по всем колонкам
+    # file_xlsx_s.column_dimensions["A"].min = 20 # прим. колво символов
+    # file_xlsx_s.column_dimensions["B"].width = 25
+    # file_xlsx_s.column_dimensions['C'].max = 25
+    # width_cell = len(cell_value) * 1.23
+    # adjusted_width = (max_length + 2) * 1.2
+    # worksheet.column_dimensions[column].width = adjusted_width
+    # установка ширины ячеек по всем колонкам
+    # for col_auto_size in range(1, col_of_list+1):
+    #     file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].bestFit = True
+    #     file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].auto_size = True
+    #     file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].collapsed = True
+
+
+
+
+
     # включение фильтра
     file_xlsx_s.auto_filter.ref = 'A1:' + openpyxl.utils.get_column_letter(col_of_list)+'1'
-
-    # установка ширины ячеек по всем колонкам
-    # file_xlsx_s.column_dimensions["A"].width = 30 # прим. колво символов
-    # file_xlsx_s.column_dimensions["B"].width = 20
-
-    # установка автоширины ячеек по всем колонкам
-    for col_auto_size in range(1, col_of_list+1):
-        file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].auto_size = True
-        # file_xlsx_s.column_dimensions['A'].auto_size = True
-        # file_xlsx_s.column_dimensions['B'].auto_size = True
-        # file_xlsx_s.column_dimensions['C'].auto_size = True
 
     # сохраняю файл xlsx с добавлением в имя текущей даты
     file_xlsx.save(name_file_xlsx.replace('cert', 'cert_'+str(datetime.datetime.date(datetime.datetime.now()))))
