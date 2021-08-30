@@ -27,8 +27,8 @@ import openpyxl.worksheet.dimensions
 etx_txt = '.txt'  # расширение файлов с текстом
 dir_cers = r'cer_s'  # папка для сохранения сертификатов
 dir_txts = r'txt_s'  # папка для дампов сертификатов
-# команда для командной строки
-cer_command = rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
+# команда для командной строки rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
+cer_command = fr'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
 # файл шаблон для называния файла выгрузки
 name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
@@ -64,8 +64,16 @@ def clean_dir_txts():
 def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
     # запуск процесса создания дампов без вывода на экран результатов
-    subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True)
+    proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
+
+    # os.system(cer_command)
+    # subprocess.Popen(cer_command, stdout=subprocess.DEVNULL, shell=True)
+    # proc = subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
+
+    print(proc)
+
     print('\n(2)...дампы сертификатов вновь созданы')
 
 
@@ -208,6 +216,7 @@ def do_xlsx():
                 elif file_xlsx_s.cell(1, col).value == 'NotBefore':
                     file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
 
+                # в строке пути к дампу добавляется ссылка путём на сертификат
                 elif file_xlsx_s.cell(1, col).value == 'полный путь до дампа':
                     file_xlsx_s.cell(row, col).hyperlink = value_of_string_for_cell.replace('.txt', '.cer').replace(dir_txts, dir_cers)
                     file_xlsx_s.cell(row, col).value = value_of_string_for_cell
