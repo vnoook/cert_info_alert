@@ -36,6 +36,7 @@ list_of_strings_from_files = []
 # строка для заполнения ячеек с данными из "нестандартных" сертификатов
 value_empty_string = 'нет данных в дампе сертификата'
 
+
 # проверка на существование папок ({dir_cers}, {dir_txts}) для сертификатов и дампов
 # и создание их, если их нет
 def check_exists_dirs():
@@ -68,8 +69,8 @@ def do_txt_from_cer():
     # запуск процесса создания дампов без вывода на экран результатов
     subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
 
-    # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-    # proc = subprocess.run('notepad.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
+    # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
+    # subprocess.run('cmd.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
     # os.system(cer_command)
     # subprocess.Popen(cer_command, stdout=subprocess.DEVNULL, shell=True)
     # proc = subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
@@ -221,40 +222,20 @@ def do_xlsx():
 
                 # в строке пути к дампу добавляется ссылка путём на сертификат
                 elif file_xlsx_s.cell(1, col).value == 'полный путь до дампа':
-                    file_xlsx_s.cell(row, col).hyperlink = value_of_string_for_cell.replace('.txt', '.cer').replace(dir_txts, dir_cers)
-                    file_xlsx_s.cell(row, col).value = value_of_string_for_cell
+                    file_xlsx_s.cell(row, col).hyperlink =\
+                        value_of_string_for_cell.replace('.txt', '.cer').replace(dir_txts, dir_cers).strip()
+                    file_xlsx_s.cell(row, col).value = value_of_string_for_cell.strip()
 
                 else:
-                    file_xlsx_s.cell(row, col, value_of_string_for_cell)
+                    file_xlsx_s.cell(row, col, value_of_string_for_cell.strip())
 
+                # вычисление самого длинного значения в колонке
                 if len(str(file_xlsx_s.cell(row, col).value)) > max_len_value_of_col:
-                    max_len_value_of_col = len(str(value_of_string_for_cell).strip())
-                    # print(max_len_value_of_col)
+                    max_len_value_of_col = len(str(file_xlsx_s.cell(row, col).value).strip())
 
-            file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col)].width = max_len_value_of_col
-            print(max_len_value_of_col)
+            # установка ширины ячеек по всем колонкам для красоты в экселе
+            file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col)].width = max_len_value_of_col * 1.1
             max_len_value_of_col = 0
-
-
-
-
-    # TODO
-    # установка ширины ячеек по всем колонкам
-    # file_xlsx_s.column_dimensions["A"].min = 20 # прим. колво символов
-    # file_xlsx_s.column_dimensions["B"].width = 25
-    # file_xlsx_s.column_dimensions['C'].max = 25
-    # width_cell = len(cell_value) * 1.23
-    # adjusted_width = (max_length + 2) * 1.2
-    # worksheet.column_dimensions[column].width = adjusted_width
-    # установка ширины ячеек по всем колонкам
-    # for col_auto_size in range(1, col_of_list+1):
-    #     file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].bestFit = True
-    #     file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].auto_size = True
-    #     file_xlsx_s.column_dimensions[openpyxl.utils.get_column_letter(col_auto_size)].collapsed = True
-
-
-
-
 
     # включение фильтра
     file_xlsx_s.auto_filter.ref = 'A1:' + openpyxl.utils.get_column_letter(col_of_list)+'1'
@@ -266,7 +247,7 @@ def do_xlsx():
 
     print('\n(4)...файл с данными сертификатов собран')
     print('\n(5)...ГОТОВО!')
-    # input('\nнажмите ENTER')
+    input('\nнажмите ENTER')
 
 
 def run():
@@ -279,10 +260,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-
-    # # читаю конечный список и добавляю его в файл
-    # for xls_str in list_of_strings_from_files:
-    #     file_xlsx_s.append(xls_str)
-
-    # ws['A1'].number_format
-    # 'yyyy-mm-dd h:mm:ss'
