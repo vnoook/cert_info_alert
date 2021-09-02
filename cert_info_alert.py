@@ -28,7 +28,8 @@ etx_txt = '.txt'  # расширение файлов с текстом
 dir_cers = r'cer_s'  # папка для сохранения сертификатов
 dir_txts = r'txt_s'  # папка для дампов сертификатов
 # команда для командной строки rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
-cer_command = fr'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
+cer_command = rf'for /r {dir_cers} %i in (*.cer) do %SYSTEMROOT%\System32\certutil.exe "%i" > "{dir_txts}\%~ni.txt"'
+
 # файл шаблон для называния файла выгрузки
 name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
@@ -67,8 +68,10 @@ def do_txt_from_cer():
 
     # TODO
     # запуск процесса создания дампов без вывода на экран результатов
-    subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
+    subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
 
+
+    # subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
     # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
     # subprocess.run('cmd.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
     # os.system(cer_command)
@@ -247,7 +250,7 @@ def do_xlsx():
 
     print('\n(4)...файл с данными сертификатов собран')
     print('\n(5)...ГОТОВО!')
-    input('\nнажмите ENTER')
+    # input('\nнажмите ENTER')
 
 
 def run():
