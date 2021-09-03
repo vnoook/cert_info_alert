@@ -21,15 +21,16 @@ import subprocess
 import openpyxl
 import openpyxl.utils
 import openpyxl.styles
-# import openpyxl.worksheet.dimensions
 
 # переменные
 etx_txt = '.txt'  # расширение файлов с текстом
+etx_cer = '.cer'  # расширение файлов сертификатов
 dir_cers = r'cer_s'  # папка для сохранения сертификатов
 dir_txts = r'txt_s'  # папка для дампов сертификатов
+path_cer = ''
+path_txt = ''
 # команда для командной строки rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
-cer_command = rf'for /r {dir_cers} %i in (*.cer) do %SYSTEMROOT%\System32\certutil.exe "%i" > "{dir_txts}\%~ni.txt"'
-
+cer_command = rf'certutil.exe "{path_cer}" > "{path_txt.replace(".cer",".txt")}"'
 # файл шаблон для называния файла выгрузки
 name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
@@ -53,7 +54,8 @@ def check_exists_dirs():
 # функция очищающая папку {dir_txts} для создания новых дампов сертификатов
 def clean_dir_txts():
     # переход в папку дампов
-    os.chdir(os.path.join(os.getcwd(), dir_txts))
+    os.chdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_txts))
+
     # поиск файлов txt и их удаление
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
@@ -65,13 +67,21 @@ def clean_dir_txts():
 def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    # переход в папку с сертификатами
+    # os.chdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_cers))
 
-    # TODO
+    for data_of_scan in os.scandir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_cers)):
+        if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_cer:
+            # path_cer = os.path.join(os.getcwd(), dir_cers, data_of_scan.name)
+            # path_txt = os.path.join(os.getcwd(), dir_txts, data_of_scan.name)
+            path_cer = os.path.join(dir_cers, data_of_scan.name)
+            path_txt = os.path.join(dir_txts, data_of_scan.name)
+            subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                           shell=True, encoding='utf-8')
+
     # запуск процесса создания дампов без вывода на экран результатов
-    subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-
-
     # subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
+
     # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
     # subprocess.run('cmd.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
     # os.system(cer_command)
@@ -86,6 +96,9 @@ def do_txt_from_cer():
 # функция чтения, фильтрации и сортировки дампов сертификатов
 # а также формирования конечной таблицы для вывода её в xlsx
 def processing_txt_files():
+    # переход в папку с дампами
+    os.chdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_txts))
+
     # поля и их порядок для поиска в дампах
     # если добавить или удалить поля (кроме последнего), то алгоритм не собъётся
     tuple_search_string = (
@@ -98,9 +111,6 @@ def processing_txt_files():
                            'Серийный номер',  # отличие между органами выдавшими сертификат
                            'полный путь до дампа'  # полный путь до дампа
                           )
-    # переход в папку с дампами
-    os.chdir(os.path.join(os.getcwd(), dir_txts))
-
     # чтение и обработка каждого файла в список, и добавление в конец списка "путь к дампу"
     for data_of_scan in os.scandir():
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_txt:
