@@ -27,10 +27,8 @@ etx_txt = '.txt'  # расширение файлов с текстом
 etx_cer = '.cer'  # расширение файлов сертификатов
 dir_cers = r'cer_s'  # папка для сохранения сертификатов
 dir_txts = r'txt_s'  # папка для дампов сертификатов
-path_cer = ''
-path_txt = ''
-# команда для командной строки rf'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
-cer_command = rf'certutil.exe "{path_cer}" > "{path_txt.replace(".cer",".txt")}"'
+# команда для командной строки 'for /r {dir_cers} %i in (*.cer) do certutil "%i" > "{dir_txts}\%~ni.txt"'
+cer_command = 'certutil.exe "path_cer" > "path_txt"'
 # файл шаблон для называния файла выгрузки
 name_file_xlsx = 'cert.xlsx'
 # конечный список со строками данных в нужном порядке который выгружается в эксель
@@ -73,21 +71,20 @@ def do_txt_from_cer():
     for data_of_scan in os.scandir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_cers)):
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_cer:
             # path_cer = os.path.join(os.getcwd(), dir_cers, data_of_scan.name)
-            # path_txt = os.path.join(os.getcwd(), dir_txts, data_of_scan.name)
+            # path_txt = os.path.join(os.getcwd(), dir_txts, str(data_of_scan.name).replace('.cer','.txt'))
             path_cer = os.path.join(dir_cers, data_of_scan.name)
-            path_txt = os.path.join(dir_txts, data_of_scan.name)
-            subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                           shell=True, encoding='utf-8')
+            path_txt = os.path.join(dir_txts, str(data_of_scan.name).replace('.cer','.txt'))
+            print(cer_command.replace('path_cer', path_cer).replace('path_txt', path_txt))
+            subprocess.run(cer_command.replace('path_cer', path_cer).replace('path_txt', path_txt),
+                           stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
 
     # запуск процесса создания дампов без вывода на экран результатов
     # subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-
     # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
     # subprocess.run('cmd.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
     # os.system(cer_command)
     # subprocess.Popen(cer_command, stdout=subprocess.DEVNULL, shell=True)
     # proc = subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-
     # print(proc)
 
     print('\n(2)...дампы сертификатов вновь созданы')
@@ -151,8 +148,6 @@ def processing_txt_files():
                                 list_of_need_strings_sorted.append(value_of_string.replace(' ', ''))
                             elif suffix_of_need_string in ('NotAfter', 'NotBefore'):
                                 date_val = value_of_string.strip().split(' ', maxsplit=1)[0].replace('.', '-')
-                                # print(date_val)
-                                # print(datetime.datetime.strptime(date_val, '%d-%m-%Y'))
                                 list_of_need_strings_sorted.append(datetime.datetime.strptime(date_val, '%d-%m-%Y'))
                             else:
                                 list_of_need_strings_sorted.append(value_of_string.strip())
@@ -260,7 +255,7 @@ def do_xlsx():
 
     print('\n(4)...файл с данными сертификатов собран')
     print('\n(5)...ГОТОВО!')
-    # input('\nнажмите ENTER')
+    input('\nнажмите ENTER')
 
 
 def run():
