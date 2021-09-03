@@ -70,22 +70,10 @@ def do_txt_from_cer():
 
     for data_of_scan in os.scandir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_cers)):
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_cer:
-            # path_cer = os.path.join(os.getcwd(), dir_cers, data_of_scan.name)
-            # path_txt = os.path.join(os.getcwd(), dir_txts, str(data_of_scan.name).replace('.cer','.txt'))
             path_cer = os.path.join(dir_cers, data_of_scan.name)
             path_txt = os.path.join(dir_txts, str(data_of_scan.name).replace('.cer','.txt'))
-            print(cer_command.replace('path_cer', path_cer).replace('path_txt', path_txt))
             subprocess.run(cer_command.replace('path_cer', path_cer).replace('path_txt', path_txt),
                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-
-    # запуск процесса создания дампов без вывода на экран результатов
-    # subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-    # proc = subprocess.run(cer_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True)
-    # subprocess.run('cmd.exe', stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-    # os.system(cer_command)
-    # subprocess.Popen(cer_command, stdout=subprocess.DEVNULL, shell=True)
-    # proc = subprocess.run(cer_command, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
-    # print(proc)
 
     print('\n(2)...дампы сертификатов вновь созданы')
 
