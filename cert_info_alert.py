@@ -12,7 +12,7 @@
 # INSTALL
 # pip install openpyxl
 # COMPILE
-# pyinstaller -F -w cert_info_alert.py
+# pyinstaller -F cert_info_alert.py
 # ...
 
 import os
