@@ -15,6 +15,9 @@
 # pyinstaller -F cert_info_alert.py
 # ...
 
+# TODO
+# 199, 224
+
 import os
 import datetime
 import subprocess
@@ -196,25 +199,33 @@ def do_xlsx():
 
                 # если ячейки с датами, то подсветить
                 if file_xlsx_s.cell(1, col).value == 'NotAfter':
-                    # дата из сертификата
-                    cert_date = datetime.datetime.date(value_of_string_for_cell)
-                    # разница между датой из сертификата и текущей
-                    delta_date = cert_date - today_date
+                    if value_of_string_for_cell != value_empty_string:
+                        print()
+                        print(f'{value_of_string_for_cell = } ... {value_empty_string = }')
+                        # print(f'{datetime.datetime.date(value_of_string_for_cell) = } ... {list_of_strings_from_files[row-1] = }')
+                        # print(f'{datetime.datetime.date(value_of_string_for_cell) = } ... {list_of_strings_from_files[row] = }')
+                        print()
 
-                    # распределение по стилям разных значений разниц дат
-                    if delta_date <= datetime.timedelta(0):
-                        file_xlsx_s.cell(row, col).style = style_1
-                    elif (delta_date > datetime.timedelta(0)) and (delta_date <= datetime.timedelta(30)):
-                        file_xlsx_s.cell(row, col).style = style_30
-                    elif (delta_date > datetime.timedelta(30)) and (delta_date <= datetime.timedelta(45)):
-                        file_xlsx_s.cell(row, col).style = style_45
-                    elif delta_date > datetime.timedelta(45):
-                        file_xlsx_s.cell(row, col).style = style_46
+                        # дата из сертификата
+                        cert_date = datetime.datetime.date(value_of_string_for_cell)
+                        # разница между датой из сертификата и текущей
+                        delta_date = cert_date - today_date
 
-                    file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
+                        # распределение по стилям разных значений разниц дат
+                        if delta_date <= datetime.timedelta(0):
+                            file_xlsx_s.cell(row, col).style = style_1
+                        elif (delta_date > datetime.timedelta(0)) and (delta_date <= datetime.timedelta(30)):
+                            file_xlsx_s.cell(row, col).style = style_30
+                        elif (delta_date > datetime.timedelta(30)) and (delta_date <= datetime.timedelta(45)):
+                            file_xlsx_s.cell(row, col).style = style_45
+                        elif delta_date > datetime.timedelta(45):
+                            file_xlsx_s.cell(row, col).style = style_46
+
+                        file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
 
                 elif file_xlsx_s.cell(1, col).value == 'NotBefore':
-                    file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
+                    if value_of_string_for_cell != value_empty_string:
+                        file_xlsx_s.cell(row, col, datetime.datetime.date(value_of_string_for_cell))
 
                 # в строке пути к дампу добавляется ссылка путём на сертификат
                 elif file_xlsx_s.cell(1, col).value == 'полный путь до дампа':
