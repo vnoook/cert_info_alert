@@ -15,9 +15,6 @@
 # pyinstaller -F cert_info_alert.py
 # ...
 
-# TODO
-# 199, 224
-
 import os
 import datetime
 import subprocess
