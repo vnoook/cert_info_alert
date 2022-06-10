@@ -3,9 +3,9 @@
 # В папку {dir_cers} скопируйте сертификаты с расширение ".cer".
 # Папка {dir_txts} нужна для хранения дампов сертификатов из {dir_cers}.
 # При наличии сертификатов в папке {dir_cers} с помощью программы Windows "certutil"
-# создаются дампы с текстовом формате.
+# создаются дампы в текстовом формате.
 # Эти дампы анализируются, и сортируются по порядку изложенному в переменной {tuple_search_string}
-# и выгружаются в xlsx файл. В полученном файле xlsx подсвечиваются ячейки дат со скором окончанием.
+# и выгружаются в xlsx файл. В полученном файле xlsx подсвечиваются ячейки дат со скорым окончанием.
 # Красным подсвечиваются сроки "месяц до окончания" - 30 дней, "розовым" полтора месяца - 45 дней,
 # "зелёным" более 45 дней, "серым" просроченные сертификаты от текущей даты.
 # ...
@@ -68,13 +68,11 @@ def clean_dir_txts():
 def do_txt_from_cer():
     # переход в корневую папку
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    # переход в папку с сертификатами
-    # os.chdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_cers))
 
     for data_of_scan in os.scandir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_cers)):
         if data_of_scan.is_file() and os.path.splitext(os.path.split(data_of_scan)[1])[1] == etx_cer:
             path_cer = os.path.join(dir_cers, data_of_scan.name)
-            path_txt = os.path.join(dir_txts, str(data_of_scan.name).replace('.cer','.txt'))
+            path_txt = os.path.join(dir_txts, str(data_of_scan.name).replace('.cer', '.txt'))
             subprocess.run(cer_command.replace('path_cer', path_cer).replace('path_txt', path_txt),
                            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, shell=True, encoding='utf-8')
 
@@ -82,7 +80,7 @@ def do_txt_from_cer():
 
 
 # функция чтения, фильтрации и сортировки дампов сертификатов
-# а также формирования конечной таблицы для вывода её в xlsx
+# также формирования конечной таблицы для вывода её в xlsx
 def processing_txt_files():
     # переход в папку с дампами
     os.chdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), dir_txts))
@@ -107,7 +105,7 @@ def processing_txt_files():
             with open(data_of_scan.name, 'r') as txt_file:
                 all_strings_from_file = txt_file.read().splitlines()
 
-            # выбрал из всех строк те, которые имеются суфиксы из tuple_search_string
+            # выбрал из всех строк те, которые имеются суффиксы из tuple_search_string
             # и заменил в строках где есть первый слева символ "=" на ":", для простоты в будущем
             list_of_need_strings = []
             for string_from_file in all_strings_from_file:
@@ -116,12 +114,12 @@ def processing_txt_files():
                    (string_from_file.split('=', maxsplit=1)[0] in tuple_search_string):
                     list_of_need_strings.append(string_from_file.replace('=', ':', 1))
 
-            # из списка list_of_need_strings нужно вычислить задвоенные суфиксы
+            # из списка list_of_need_strings нужно вычислить задвоенные суффиксы
             # И создать порядок для формирования конечного списка для выгрузки в xlsx
             list_of_need_strings_sorted = []
             for suffix in tuple_search_string:
 
-                # счётчик количества повторений суфиксов
+                # счётчик количества повторений суффиксов
                 # если не ноль, то в списке есть повторения, которые надо игнорировать
                 count_suffix = 0
                 for string_from_need_list in list_of_need_strings:
@@ -129,7 +127,7 @@ def processing_txt_files():
 
                     if suffix_of_need_string == suffix:
                         value_of_string = string_from_need_list.split(':', maxsplit=1)[1]
-                        # если счётчик равен 0, то это первое повторение суфикса, остальные будут игнорироваться
+                        # если счётчик равен 0, то это первое повторение суффикса, остальные будут игнорироваться
 
                         if count_suffix == 0:
                             # индивидуальные обработки колонок
@@ -144,7 +142,7 @@ def processing_txt_files():
                                 list_of_need_strings_sorted.append(value_of_string.strip())
                         count_suffix += 1
 
-                # если за все проходы строк не найден суфикс, то вставить "заглушку"
+                # если за все проходы строк не найден суффикс, то вставить "заглушку"
                 if count_suffix == 0:
                     list_of_need_strings_sorted.append(value_empty_string)
 
@@ -190,7 +188,7 @@ def do_xlsx():
     col_of_list = len(list_of_strings_from_files[0])
 
     # заполнение ячеек значениями с предварительной их обработкой
-    # а также подсветка в зависимости от значения
+    # также подсветка в зависимости от значения
     if row_of_list > 0:
         for col in range(1, col_of_list+1):
             max_len_value_of_col = 0
@@ -200,12 +198,6 @@ def do_xlsx():
                 # если ячейки с датами, то подсветить
                 if file_xlsx_s.cell(1, col).value == 'NotAfter':
                     if value_of_string_for_cell != value_empty_string:
-                        print()
-                        print(f'{value_of_string_for_cell = } ... {value_empty_string = }')
-                        # print(f'{datetime.datetime.date(value_of_string_for_cell) = } ... {list_of_strings_from_files[row-1] = }')
-                        # print(f'{datetime.datetime.date(value_of_string_for_cell) = } ... {list_of_strings_from_files[row] = }')
-                        print()
-
                         # дата из сертификата
                         cert_date = datetime.datetime.date(value_of_string_for_cell)
                         # разница между датой из сертификата и текущей
